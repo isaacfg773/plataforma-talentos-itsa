@@ -15,14 +15,42 @@ const {
 
 
 /* =========================================================
-   CONFIGURACIÓN
+   CONFIGURACIÓN GENERAL
 ========================================================= */
 
 const app = express();
-const PORT = 3000;
 
-app.use(cors());
-app.use(express.json());
+/*
+  LOCAL:
+  usa 3000
+
+  RAILWAY:
+  Railway asignará automáticamente process.env.PORT
+*/
+const PORT =
+  process.env.PORT || 3000;
+
+
+/*
+  Necesario para que Railway reconozca correctamente
+  HTTPS cuando la aplicación está detrás de su proxy.
+*/
+app.set(
+  'trust proxy',
+  1
+);
+
+
+app.use(
+  cors()
+);
+
+
+app.use(
+  express.json()
+);
+
+
 app.use(
   express.urlencoded({
     extended: true
@@ -31,19 +59,54 @@ app.use(
 
 
 /* =========================================================
-   CARPETAS
+   ALMACENAMIENTO PERSISTENTE
 ========================================================= */
 
-const carpetaUploads = path.join(
-  __dirname,
-  'uploads',
-  'curriculums'
-);
+/*
+  LOCAL:
 
-const carpetaDatabase = path.join(
-  __dirname,
-  'database'
-);
+  backend/
+      database/
+      uploads/
+
+
+  RAILWAY:
+
+  Podemos crear un volumen en /data
+  y configurar:
+
+  DATA_DIR=/data
+*/
+
+const carpetaBase =
+  process.env.DATA_DIR
+    ? path.resolve(
+        process.env.DATA_DIR
+      )
+    : __dirname;
+
+
+const carpetaUploads =
+  path.join(
+    carpetaBase,
+    'uploads',
+    'curriculums'
+  );
+
+
+const carpetaUploadsBase =
+  path.join(
+    carpetaBase,
+    'uploads'
+  );
+
+
+const carpetaDatabase =
+  path.join(
+    carpetaBase,
+    'database'
+  );
+
 
 fs.mkdirSync(
   carpetaUploads,
@@ -52,6 +115,7 @@ fs.mkdirSync(
   }
 );
 
+
 fs.mkdirSync(
   carpetaDatabase,
   {
@@ -60,28 +124,74 @@ fs.mkdirSync(
 );
 
 
+/* =========================================================
+   ARCHIVOS PÚBLICOS
+========================================================= */
+
 app.use(
   '/uploads',
+
   express.static(
-    path.join(
-      __dirname,
-      'uploads'
-    )
+    carpetaUploadsBase
   )
 );
+
+
+/* =========================================================
+   URL PÚBLICA DEL SERVIDOR
+========================================================= */
+
+function obtenerUrlBase(
+  req
+) {
+
+  /*
+    Si más adelante configuramos PUBLIC_URL
+    en Railway, tendrá prioridad.
+  */
+
+  if (
+    process.env.PUBLIC_URL
+  ) {
+
+    return process.env.PUBLIC_URL
+      .replace(
+        /\/+$/,
+        ''
+      );
+
+  }
+
+
+  /*
+    LOCAL:
+    http://localhost:3000
+
+    RAILWAY:
+    https://xxxx.up.railway.app
+  */
+
+  return `${req.protocol}://${req.get('host')}`;
+
+}
 
 
 /* =========================================================
    SQLITE
 ========================================================= */
 
-const rutaDB = path.join(
-  carpetaDatabase,
-  'talentos.db'
-);
+const rutaDB =
+  path.join(
+    carpetaDatabase,
+    'talentos.db'
+  );
+
 
 const db =
-  new DatabaseSync(rutaDB);
+  new DatabaseSync(
+    rutaDB
+  );
+
 
 db.exec(`
   PRAGMA foreign_keys = ON;
@@ -235,7 +345,7 @@ db.exec(`
 
 
 /* =========================================================
-   MIGRACIÓN PARA BASE YA EXISTENTE
+   MIGRACIÓN DE BASE EXISTENTE
 ========================================================= */
 
 function existeColumna(
@@ -250,12 +360,16 @@ function existeColumna(
       )
       .all();
 
+
   return columnas.some(
     item =>
       item.name === columna
   );
+
 }
 
+
+/* PROFESIONALES */
 
 if (
   !existeColumna(
@@ -269,11 +383,15 @@ if (
     ADD COLUMN usuarioId INTEGER
   `);
 
+
   console.log(
     'Columna usuarioId agregada a profesionales.'
   );
+
 }
 
+
+/* EMPRESAS */
 
 if (
   !existeColumna(
@@ -287,13 +405,17 @@ if (
     ADD COLUMN usuarioId INTEGER
   `);
 
+
   console.log(
     'Columna usuarioId agregada a empresas.'
   );
+
 }
 
 
-/* Un usuario solo puede tener un perfil */
+/* =========================================================
+   ÍNDICES
+========================================================= */
 
 db.exec(`
   CREATE UNIQUE INDEX IF NOT EXISTS
@@ -316,7 +438,7 @@ db.exec(`
 
 
 /* =========================================================
-   MULTER - CV PDF
+   MULTER - CURRÍCULUM PDF
 ========================================================= */
 
 const almacenamiento =
@@ -335,13 +457,14 @@ const almacenamiento =
 
     },
 
+
     filename(
       req,
       file,
       cb
     ) {
 
-      const seguro =
+      const nombreSeguro =
         file.originalname
           .replace(
             /\s+/g,
@@ -352,9 +475,10 @@ const almacenamiento =
             ''
           );
 
+
       cb(
         null,
-        `${Date.now()}-${seguro}`
+        `${Date.now()}-${nombreSeguro}`
       );
 
     }
@@ -368,12 +492,14 @@ const subirCV =
     storage:
       almacenamiento,
 
+
     limits: {
 
       fileSize:
         5 * 1024 * 1024
 
     },
+
 
     fileFilter(
       req,
@@ -408,13 +534,22 @@ const subirCV =
   });
 
 
+/* =========================================================
+   ELIMINAR ARCHIVO SUBIDO
+========================================================= */
+
 function eliminarArchivoSubido(
   archivo
 ) {
 
-  if (!archivo) {
+  if (
+    !archivo
+  ) {
+
     return;
+
   }
+
 
   try {
 
@@ -445,7 +580,74 @@ function eliminarArchivoSubido(
 
 
 /* =========================================================
-   AUTENTICACIÓN, USUARIOS Y LOGIN
+   ELIMINAR CV POR URL
+========================================================= */
+
+function eliminarCvPorUrl(
+  cvUrl
+) {
+
+  if (
+    !cvUrl
+  ) {
+
+    return;
+
+  }
+
+
+  try {
+
+    const nombreArchivo =
+      cvUrl
+        .split('/')
+        .pop();
+
+
+    if (
+      !nombreArchivo
+    ) {
+
+      return;
+
+    }
+
+
+    const rutaArchivo =
+      path.join(
+        carpetaUploads,
+        nombreArchivo
+      );
+
+
+    if (
+      fs.existsSync(
+        rutaArchivo
+      )
+    ) {
+
+      fs.unlinkSync(
+        rutaArchivo
+      );
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.error(
+      'No se pudo eliminar CV:',
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   AUTENTICACIÓN
 ========================================================= */
 
 instalarAutenticacion(
@@ -485,10 +687,10 @@ app.post(
     let transaccion =
       false;
 
+
     try {
 
       const {
-
         nombres,
         apellidos,
         ci,
@@ -499,7 +701,6 @@ app.post(
         nivelIngles,
         quechua,
         experiencia
-
       } = req.body;
 
 
@@ -514,6 +715,7 @@ app.post(
         eliminarArchivoSubido(
           req.file
         );
+
 
         return res
           .status(400)
@@ -537,6 +739,7 @@ app.post(
           req.file
         );
 
+
         return res
           .status(400)
           .json({
@@ -556,6 +759,7 @@ app.post(
         eliminarArchivoSubido(
           req.file
         );
+
 
         return res
           .status(400)
@@ -579,7 +783,9 @@ app.post(
         db
           .prepare(`
             SELECT id
+
             FROM usuarios
+
             WHERE LOWER(correo) = ?
           `)
           .get(
@@ -594,6 +800,7 @@ app.post(
         eliminarArchivoSubido(
           req.file
         );
+
 
         return res
           .status(400)
@@ -611,7 +818,9 @@ app.post(
         db
           .prepare(`
             SELECT *
+
             FROM profesionales
+
             WHERE ci = ?
           `)
           .get(
@@ -627,6 +836,7 @@ app.post(
         eliminarArchivoSubido(
           req.file
         );
+
 
         return res
           .status(400)
@@ -651,7 +861,9 @@ app.post(
         'BEGIN TRANSACTION'
       );
 
-      transaccion = true;
+
+      transaccion =
+        true;
 
 
       const resultadoUsuario =
@@ -696,8 +908,9 @@ app.post(
         cv =
           req.file.originalname;
 
+
         cvUrl =
-          `http://localhost:${PORT}/uploads/curriculums/${req.file.filename}`;
+          `${obtenerUrlBase(req)}/uploads/curriculums/${req.file.filename}`;
 
       }
 
@@ -705,14 +918,25 @@ app.post(
       let profesionalId;
 
 
-      /*
-       Si el administrador ya había registrado
-       este CI, vinculamos ese perfil.
-      */
+      /* =========================================
+         PROFESIONAL YA EXISTENTE
+      ========================================= */
 
       if (
         profesionalExistente
       ) {
+
+        if (
+          req.file &&
+          profesionalExistente.cvUrl
+        ) {
+
+          eliminarCvPorUrl(
+            profesionalExistente.cvUrl
+          );
+
+        }
+
 
         db
           .prepare(`
@@ -728,12 +952,14 @@ app.post(
               nivelIngles = ?,
               quechua = ?,
               experiencia = ?,
+
               cv =
                 CASE
                   WHEN ? <> ''
                   THEN ?
                   ELSE cv
                 END,
+
               cvUrl =
                 CASE
                   WHEN ? <> ''
@@ -780,6 +1006,11 @@ app.post(
           profesionalExistente.id;
 
       }
+
+
+      /* =========================================
+         NUEVO PROFESIONAL
+      ========================================= */
 
       else {
 
@@ -847,7 +1078,9 @@ app.post(
         'COMMIT'
       );
 
-      transaccion = false;
+
+      transaccion =
+        false;
 
 
       res
@@ -870,6 +1103,7 @@ app.post(
         });
 
     }
+
 
     catch (error) {
 
@@ -901,6 +1135,25 @@ app.post(
       );
 
 
+      if (
+        String(error)
+          .includes(
+            'UNIQUE'
+          )
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'Ya existe un registro con esos datos.'
+
+          });
+
+      }
+
+
       res
         .status(500)
         .json({
@@ -928,10 +1181,10 @@ app.post(
     let transaccion =
       false;
 
+
     try {
 
       const {
-
         nombre,
         areaTrabajo,
         direccion,
@@ -939,7 +1192,6 @@ app.post(
         correo,
         personaContacto,
         password
-
       } = req.body;
 
 
@@ -1005,7 +1257,9 @@ app.post(
         db
           .prepare(`
             SELECT id
+
             FROM usuarios
+
             WHERE LOWER(correo) = ?
           `)
           .get(
@@ -1029,16 +1283,13 @@ app.post(
       }
 
 
-      /*
-       Si el administrador ya registró una empresa
-       con este correo, la vincularemos.
-      */
-
       const empresaExistente =
         db
           .prepare(`
             SELECT *
+
             FROM empresas
+
             WHERE LOWER(correo) = ?
           `)
           .get(
@@ -1074,7 +1325,9 @@ app.post(
         'BEGIN TRANSACTION'
       );
 
-      transaccion = true;
+
+      transaccion =
+        true;
 
 
       const resultadoUsuario =
@@ -1109,6 +1362,8 @@ app.post(
 
       let empresaId;
 
+
+      /* EMPRESA YA REGISTRADA POR ADMIN */
 
       if (
         empresaExistente
@@ -1154,6 +1409,9 @@ app.post(
           empresaExistente.id;
 
       }
+
+
+      /* NUEVA EMPRESA */
 
       else {
 
@@ -1206,7 +1464,9 @@ app.post(
         'COMMIT'
       );
 
-      transaccion = false;
+
+      transaccion =
+        false;
 
 
       res
@@ -1229,6 +1489,7 @@ app.post(
         });
 
     }
+
 
     catch (error) {
 
@@ -1253,6 +1514,25 @@ app.post(
         'Error registro empresa:',
         error
       );
+
+
+      if (
+        String(error)
+          .includes(
+            'UNIQUE'
+          )
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'Ya existe una cuenta con esos datos.'
+
+          });
+
+      }
 
 
       res
@@ -1285,7 +1565,11 @@ app.get(
         'Plataforma Digital de Talentos ITSa',
 
       estado:
-        'Funcionando',
+        'Funcionando correctamente',
+
+      entorno:
+        process.env.NODE_ENV ||
+        'development',
 
       rutas: {
 
@@ -1319,7 +1603,7 @@ app.get(
 
 
 /* =========================================================
-   PROFESIONALES
+   PROFESIONALES - LISTAR
 ========================================================= */
 
 app.get(
@@ -1333,7 +1617,9 @@ app.get(
         db
           .prepare(`
             SELECT *
+
             FROM profesionales
+
             ORDER BY id DESC
           `)
           .all();
@@ -1347,7 +1633,10 @@ app.get(
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -1364,6 +1653,10 @@ app.get(
 );
 
 
+/* =========================================================
+   PROFESIONAL POR ID
+========================================================= */
+
 app.get(
   '/api/profesionales/:id',
 
@@ -1375,7 +1668,9 @@ app.get(
         db
           .prepare(`
             SELECT *
+
             FROM profesionales
+
             WHERE id = ?
           `)
           .get(
@@ -1409,7 +1704,10 @@ app.get(
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -1426,6 +1724,10 @@ app.get(
 );
 
 
+/* =========================================================
+   PROFESIONALES - REGISTRAR ADMIN
+========================================================= */
+
 app.post(
   '/api/profesionales',
 
@@ -1436,7 +1738,6 @@ app.post(
     try {
 
       const {
-
         nombres,
         apellidos,
         ci,
@@ -1446,7 +1747,6 @@ app.post(
         nivelIngles,
         quechua,
         experiencia
-
       } = req.body;
 
 
@@ -1459,6 +1759,7 @@ app.post(
         eliminarArchivoSubido(
           req.file
         );
+
 
         return res
           .status(400)
@@ -1473,6 +1774,7 @@ app.post(
 
 
       let cv = '';
+
       let cvUrl = '';
 
 
@@ -1483,8 +1785,9 @@ app.post(
         cv =
           req.file.originalname;
 
+
         cvUrl =
-          `http://localhost:${PORT}/uploads/curriculums/${req.file.filename}`;
+          `${obtenerUrlBase(req)}/uploads/curriculums/${req.file.filename}`;
 
       }
 
@@ -1541,7 +1844,9 @@ app.post(
         db
           .prepare(`
             SELECT *
+
             FROM profesionales
+
             WHERE id = ?
           `)
           .get(
@@ -1558,6 +1863,7 @@ app.post(
         );
 
     }
+
 
     catch (error) {
 
@@ -1585,7 +1891,10 @@ app.post(
       }
 
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -1601,6 +1910,10 @@ app.post(
   }
 );
 
+
+/* =========================================================
+   PROFESIONALES - ACTUALIZAR
+========================================================= */
 
 app.put(
   '/api/profesionales/:id',
@@ -1621,7 +1934,9 @@ app.put(
         db
           .prepare(`
             SELECT *
+
             FROM profesionales
+
             WHERE id = ?
           `)
           .get(id);
@@ -1634,6 +1949,7 @@ app.put(
         eliminarArchivoSubido(
           req.file
         );
+
 
         return res
           .status(404)
@@ -1648,7 +1964,6 @@ app.put(
 
 
       const {
-
         nombres,
         apellidos,
         ci,
@@ -1658,12 +1973,35 @@ app.put(
         nivelIngles,
         quechua,
         experiencia
-
       } = req.body;
+
+
+      if (
+        !nombres ||
+        !apellidos ||
+        !ci
+      ) {
+
+        eliminarArchivoSubido(
+          req.file
+        );
+
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'Nombres, apellidos y CI son obligatorios.'
+
+          });
+
+      }
 
 
       let cv =
         actual.cv;
+
 
       let cvUrl =
         actual.cvUrl;
@@ -1673,43 +2011,17 @@ app.put(
         req.file
       ) {
 
-        if (
+        eliminarCvPorUrl(
           actual.cvUrl
-        ) {
-
-          const anterior =
-            actual.cvUrl
-              .split('/')
-              .pop();
-
-
-          const rutaAnterior =
-            path.join(
-              carpetaUploads,
-              anterior
-            );
-
-
-          if (
-            fs.existsSync(
-              rutaAnterior
-            )
-          ) {
-
-            fs.unlinkSync(
-              rutaAnterior
-            );
-
-          }
-
-        }
+        );
 
 
         cv =
           req.file.originalname;
 
+
         cvUrl =
-          `http://localhost:${PORT}/uploads/curriculums/${req.file.filename}`;
+          `${obtenerUrlBase(req)}/uploads/curriculums/${req.file.filename}`;
 
       }
 
@@ -1766,7 +2078,9 @@ app.put(
         db
           .prepare(`
             SELECT *
+
             FROM profesionales
+
             WHERE id = ?
           `)
           .get(id);
@@ -1778,9 +2092,32 @@ app.put(
 
     }
 
+
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
+
+      if (
+        String(error)
+          .includes(
+            'UNIQUE'
+          )
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'Ya existe otro profesional con ese CI.'
+
+          });
+
+      }
+
 
       res
         .status(500)
@@ -1796,6 +2133,10 @@ app.put(
   }
 );
 
+
+/* =========================================================
+   PROFESIONALES - ELIMINAR
+========================================================= */
 
 app.delete(
   '/api/profesionales/:id',
@@ -1814,7 +2155,9 @@ app.delete(
         db
           .prepare(`
             SELECT *
+
             FROM profesionales
+
             WHERE id = ?
           `)
           .get(id);
@@ -1840,7 +2183,9 @@ app.delete(
         db
           .prepare(`
             SELECT COUNT(*) AS total
+
             FROM postulaciones
+
             WHERE profesionalId = ?
           `)
           .get(id);
@@ -1864,9 +2209,15 @@ app.delete(
       }
 
 
+      eliminarCvPorUrl(
+        profesional.cvUrl
+      );
+
+
       db
         .prepare(`
           DELETE FROM profesionales
+
           WHERE id = ?
         `)
         .run(id);
@@ -1881,9 +2232,13 @@ app.delete(
 
     }
 
+
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -1901,7 +2256,7 @@ app.delete(
 
 
 /* =========================================================
-   EMPRESAS
+   EMPRESAS - LISTAR
 ========================================================= */
 
 app.get(
@@ -1911,23 +2266,30 @@ app.get(
 
     try {
 
-      res.json(
-
+      const empresas =
         db
           .prepare(`
             SELECT *
+
             FROM empresas
+
             ORDER BY id DESC
           `)
-          .all()
+          .all();
 
+
+      res.json(
+        empresas
       );
 
     }
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -1944,46 +2306,80 @@ app.get(
 );
 
 
+/* =========================================================
+   EMPRESA POR ID
+========================================================= */
+
 app.get(
   '/api/empresas/:id',
 
   (req, res) => {
 
-    const empresa =
-      db
-        .prepare(`
-          SELECT *
-          FROM empresas
-          WHERE id = ?
-        `)
-        .get(
-          Number(
-            req.params.id
-          )
-        );
+    try {
+
+      const empresa =
+        db
+          .prepare(`
+            SELECT *
+
+            FROM empresas
+
+            WHERE id = ?
+          `)
+          .get(
+            Number(
+              req.params.id
+            )
+          );
 
 
-    if (!empresa) {
+      if (
+        !empresa
+      ) {
 
-      return res
-        .status(404)
+        return res
+          .status(404)
+          .json({
+
+            mensaje:
+              'Empresa no encontrada.'
+
+          });
+
+      }
+
+
+      res.json(
+        empresa
+      );
+
+    }
+
+    catch (error) {
+
+      console.error(
+        error
+      );
+
+
+      res
+        .status(500)
         .json({
 
           mensaje:
-            'Empresa no encontrada.'
+            'Error al buscar empresa.'
 
         });
 
     }
 
-
-    res.json(
-      empresa
-    );
-
   }
 );
 
+
+/* =========================================================
+   EMPRESAS - REGISTRAR ADMIN
+========================================================= */
 
 app.post(
   '/api/empresas',
@@ -1993,19 +2389,18 @@ app.post(
     try {
 
       const {
-
         nombre,
         areaTrabajo,
         direccion,
         telefono,
         correo,
         personaContacto
-
       } = req.body;
 
 
       if (
-        !nombre
+        !nombre ||
+        !nombre.trim()
       ) {
 
         return res
@@ -2033,7 +2428,8 @@ app.post(
               personaContacto
             )
 
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES
+            (?, ?, ?, ?, ?, ?)
           `)
           .run(
 
@@ -2052,29 +2448,36 @@ app.post(
           );
 
 
+      const nueva =
+        db
+          .prepare(`
+            SELECT *
+
+            FROM empresas
+
+            WHERE id = ?
+          `)
+          .get(
+            Number(
+              resultado.lastInsertRowid
+            )
+          );
+
+
       res
         .status(201)
         .json(
-
-          db
-            .prepare(`
-              SELECT *
-              FROM empresas
-              WHERE id = ?
-            `)
-            .get(
-              Number(
-                resultado.lastInsertRowid
-              )
-            )
-
+          nueva
         );
 
     }
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -2091,6 +2494,10 @@ app.post(
 );
 
 
+/* =========================================================
+   EMPRESAS - ACTUALIZAR
+========================================================= */
+
 app.put(
   '/api/empresas/:id',
 
@@ -2104,16 +2511,59 @@ app.put(
         );
 
 
-      const {
+      const existente =
+        db
+          .prepare(`
+            SELECT id
 
+            FROM empresas
+
+            WHERE id = ?
+          `)
+          .get(id);
+
+
+      if (
+        !existente
+      ) {
+
+        return res
+          .status(404)
+          .json({
+
+            mensaje:
+              'Empresa no encontrada.'
+
+          });
+
+      }
+
+
+      const {
         nombre,
         areaTrabajo,
         direccion,
         telefono,
         correo,
         personaContacto
-
       } = req.body;
+
+
+      if (
+        !nombre ||
+        !nombre.trim()
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'El nombre es obligatorio.'
+
+          });
+
+      }
 
 
       db
@@ -2132,7 +2582,7 @@ app.put(
         `)
         .run(
 
-          nombre,
+          nombre.trim(),
 
           areaTrabajo || '',
 
@@ -2149,23 +2599,30 @@ app.put(
         );
 
 
-      res.json(
-
+      const actualizada =
         db
           .prepare(`
             SELECT *
+
             FROM empresas
+
             WHERE id = ?
           `)
-          .get(id)
+          .get(id);
 
+
+      res.json(
+        actualizada
       );
 
     }
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -2182,6 +2639,10 @@ app.put(
 );
 
 
+/* =========================================================
+   EMPRESAS - ELIMINAR
+========================================================= */
+
 app.delete(
   '/api/empresas/:id',
 
@@ -2195,11 +2656,41 @@ app.delete(
         );
 
 
+      const empresa =
+        db
+          .prepare(`
+            SELECT id
+
+            FROM empresas
+
+            WHERE id = ?
+          `)
+          .get(id);
+
+
+      if (
+        !empresa
+      ) {
+
+        return res
+          .status(404)
+          .json({
+
+            mensaje:
+              'Empresa no encontrada.'
+
+          });
+
+      }
+
+
       const ofertas =
         db
           .prepare(`
             SELECT COUNT(*) AS total
+
             FROM ofertas
+
             WHERE empresaId = ?
           `)
           .get(id);
@@ -2226,6 +2717,7 @@ app.delete(
       db
         .prepare(`
           DELETE FROM empresas
+
           WHERE id = ?
         `)
         .run(id);
@@ -2242,7 +2734,10 @@ app.delete(
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -2260,7 +2755,7 @@ app.delete(
 
 
 /* =========================================================
-   OFERTAS
+   OFERTAS - LISTAR
 ========================================================= */
 
 app.get(
@@ -2270,13 +2765,15 @@ app.get(
 
     try {
 
-      res.json(
-
+      const ofertas =
         db
           .prepare(`
             SELECT
+
               o.*,
-              e.nombre AS empresaNombre
+
+              e.nombre
+              AS empresaNombre
 
             FROM ofertas o
 
@@ -2285,15 +2782,21 @@ app.get(
 
             ORDER BY o.id DESC
           `)
-          .all()
+          .all();
 
+
+      res.json(
+        ofertas
       );
 
     }
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -2310,6 +2813,89 @@ app.get(
 );
 
 
+/* =========================================================
+   OFERTA POR ID
+========================================================= */
+
+app.get(
+  '/api/ofertas/:id',
+
+  (req, res) => {
+
+    try {
+
+      const oferta =
+        db
+          .prepare(`
+            SELECT
+
+              o.*,
+
+              e.nombre
+              AS empresaNombre
+
+            FROM ofertas o
+
+            INNER JOIN empresas e
+              ON e.id = o.empresaId
+
+            WHERE o.id = ?
+          `)
+          .get(
+            Number(
+              req.params.id
+            )
+          );
+
+
+      if (
+        !oferta
+      ) {
+
+        return res
+          .status(404)
+          .json({
+
+            mensaje:
+              'Oferta laboral no encontrada.'
+
+          });
+
+      }
+
+
+      res.json(
+        oferta
+      );
+
+    }
+
+    catch (error) {
+
+      console.error(
+        error
+      );
+
+
+      res
+        .status(500)
+        .json({
+
+          mensaje:
+            'Error al buscar oferta.'
+
+        });
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   OFERTAS - REGISTRAR
+========================================================= */
+
 app.post(
   '/api/ofertas',
 
@@ -2318,7 +2904,6 @@ app.post(
     try {
 
       const {
-
         empresaId,
         cargo,
         descripcion,
@@ -2328,7 +2913,6 @@ app.post(
         fechaPublicacion,
         fechaCierre,
         estado
-
       } = req.body;
 
 
@@ -2345,6 +2929,55 @@ app.post(
 
             mensaje:
               'Empresa, cargo y fechas son obligatorios.'
+
+          });
+
+      }
+
+
+      if (
+        fechaCierre <
+        fechaPublicacion
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'La fecha de cierre no puede ser anterior a la fecha de publicación.'
+
+          });
+
+      }
+
+
+      const empresa =
+        db
+          .prepare(`
+            SELECT id
+
+            FROM empresas
+
+            WHERE id = ?
+          `)
+          .get(
+            Number(
+              empresaId
+            )
+          );
+
+
+      if (
+        !empresa
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'La empresa seleccionada no existe.'
 
           });
 
@@ -2395,25 +3028,44 @@ app.post(
           );
 
 
-      res
-        .status(201)
-        .json({
+      const nueva =
+        db
+          .prepare(`
+            SELECT
 
-          id:
+              o.*,
+
+              e.nombre
+              AS empresaNombre
+
+            FROM ofertas o
+
+            INNER JOIN empresas e
+              ON e.id = o.empresaId
+
+            WHERE o.id = ?
+          `)
+          .get(
             Number(
               resultado.lastInsertRowid
-            ),
+            )
+          );
 
-          mensaje:
-            'Oferta registrada correctamente.'
 
-        });
+      res
+        .status(201)
+        .json(
+          nueva
+        );
 
     }
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -2430,6 +3082,10 @@ app.post(
 );
 
 
+/* =========================================================
+   OFERTAS - ACTUALIZAR
+========================================================= */
+
 app.put(
   '/api/ofertas/:id',
 
@@ -2443,8 +3099,35 @@ app.put(
         );
 
 
-      const {
+      const existente =
+        db
+          .prepare(`
+            SELECT id
 
+            FROM ofertas
+
+            WHERE id = ?
+          `)
+          .get(id);
+
+
+      if (
+        !existente
+      ) {
+
+        return res
+          .status(404)
+          .json({
+
+            mensaje:
+              'Oferta laboral no encontrada.'
+
+          });
+
+      }
+
+
+      const {
         empresaId,
         cargo,
         descripcion,
@@ -2454,8 +3137,43 @@ app.put(
         fechaPublicacion,
         fechaCierre,
         estado
-
       } = req.body;
+
+
+      if (
+        !empresaId ||
+        !cargo ||
+        !fechaPublicacion ||
+        !fechaCierre
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'Empresa, cargo y fechas son obligatorios.'
+
+          });
+
+      }
+
+
+      if (
+        fechaCierre <
+        fechaPublicacion
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'La fecha de cierre no puede ser anterior a la publicación.'
+
+          });
+
+      }
 
 
       db
@@ -2481,7 +3199,7 @@ app.put(
             empresaId
           ),
 
-          cargo,
+          cargo.trim(),
 
           descripcion || '',
 
@@ -2502,18 +3220,38 @@ app.put(
         );
 
 
-      res.json({
+      const actualizada =
+        db
+          .prepare(`
+            SELECT
 
-        mensaje:
-          'Oferta actualizada correctamente.'
+              o.*,
 
-      });
+              e.nombre
+              AS empresaNombre
+
+            FROM ofertas o
+
+            INNER JOIN empresas e
+              ON e.id = o.empresaId
+
+            WHERE o.id = ?
+          `)
+          .get(id);
+
+
+      res.json(
+        actualizada
+      );
 
     }
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -2530,6 +3268,10 @@ app.put(
 );
 
 
+/* =========================================================
+   OFERTAS - ELIMINAR
+========================================================= */
+
 app.delete(
   '/api/ofertas/:id',
 
@@ -2543,11 +3285,41 @@ app.delete(
         );
 
 
+      const oferta =
+        db
+          .prepare(`
+            SELECT id
+
+            FROM ofertas
+
+            WHERE id = ?
+          `)
+          .get(id);
+
+
+      if (
+        !oferta
+      ) {
+
+        return res
+          .status(404)
+          .json({
+
+            mensaje:
+              'Oferta laboral no encontrada.'
+
+          });
+
+      }
+
+
       const postulaciones =
         db
           .prepare(`
             SELECT COUNT(*) AS total
+
             FROM postulaciones
+
             WHERE ofertaId = ?
           `)
           .get(id);
@@ -2574,6 +3346,7 @@ app.delete(
       db
         .prepare(`
           DELETE FROM ofertas
+
           WHERE id = ?
         `)
         .run(id);
@@ -2590,7 +3363,10 @@ app.delete(
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -2608,7 +3384,7 @@ app.delete(
 
 
 /* =========================================================
-   POSTULACIONES
+   POSTULACIONES - LISTAR
 ========================================================= */
 
 app.get(
@@ -2618,8 +3394,7 @@ app.get(
 
     try {
 
-      res.json(
-
+      const postulaciones =
         db
           .prepare(`
             SELECT
@@ -2653,15 +3428,21 @@ app.get(
 
             ORDER BY p.id DESC
           `)
-          .all()
+          .all();
 
+
+      res.json(
+        postulaciones
       );
 
     }
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -2678,6 +3459,106 @@ app.get(
 );
 
 
+/* =========================================================
+   POSTULACIÓN POR ID
+========================================================= */
+
+app.get(
+  '/api/postulaciones/:id',
+
+  (req, res) => {
+
+    try {
+
+      const postulacion =
+        db
+          .prepare(`
+            SELECT
+
+              p.*,
+
+              pr.nombres ||
+              ' ' ||
+              pr.apellidos
+              AS profesionalNombre,
+
+              pr.ci
+              AS profesionalCI,
+
+              o.cargo
+              AS ofertaCargo,
+
+              e.nombre
+              AS empresaNombre
+
+            FROM postulaciones p
+
+            INNER JOIN profesionales pr
+              ON pr.id = p.profesionalId
+
+            INNER JOIN ofertas o
+              ON o.id = p.ofertaId
+
+            INNER JOIN empresas e
+              ON e.id = o.empresaId
+
+            WHERE p.id = ?
+          `)
+          .get(
+            Number(
+              req.params.id
+            )
+          );
+
+
+      if (
+        !postulacion
+      ) {
+
+        return res
+          .status(404)
+          .json({
+
+            mensaje:
+              'Postulación no encontrada.'
+
+          });
+
+      }
+
+
+      res.json(
+        postulacion
+      );
+
+    }
+
+    catch (error) {
+
+      console.error(
+        error
+      );
+
+
+      res
+        .status(500)
+        .json({
+
+          mensaje:
+            'Error al buscar postulación.'
+
+        });
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   POSTULACIONES - REGISTRAR
+========================================================= */
+
 app.post(
   '/api/postulaciones',
 
@@ -2686,14 +3567,94 @@ app.post(
     try {
 
       const {
-
         profesionalId,
         ofertaId,
         fechaPostulacion,
         estado,
         observaciones
-
       } = req.body;
+
+
+      if (
+        !profesionalId ||
+        !ofertaId ||
+        !fechaPostulacion
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'Profesional, oferta y fecha son obligatorios.'
+
+          });
+
+      }
+
+
+      const profesional =
+        db
+          .prepare(`
+            SELECT id
+
+            FROM profesionales
+
+            WHERE id = ?
+          `)
+          .get(
+            Number(
+              profesionalId
+            )
+          );
+
+
+      if (
+        !profesional
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'El profesional no existe.'
+
+          });
+
+      }
+
+
+      const oferta =
+        db
+          .prepare(`
+            SELECT id
+
+            FROM ofertas
+
+            WHERE id = ?
+          `)
+          .get(
+            Number(
+              ofertaId
+            )
+          );
+
+
+      if (
+        !oferta
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'La oferta no existe.'
+
+          });
+
+      }
 
 
       const existe =
@@ -2748,7 +3709,8 @@ app.post(
               observaciones
             )
 
-            VALUES (?, ?, ?, ?, ?)
+            VALUES
+            (?, ?, ?, ?, ?)
           `)
           .run(
 
@@ -2769,25 +3731,58 @@ app.post(
           );
 
 
-      res
-        .status(201)
-        .json({
+      const nueva =
+        db
+          .prepare(`
+            SELECT
 
-          id:
+              p.*,
+
+              pr.nombres ||
+              ' ' ||
+              pr.apellidos
+              AS profesionalNombre,
+
+              o.cargo
+              AS ofertaCargo,
+
+              e.nombre
+              AS empresaNombre
+
+            FROM postulaciones p
+
+            INNER JOIN profesionales pr
+              ON pr.id = p.profesionalId
+
+            INNER JOIN ofertas o
+              ON o.id = p.ofertaId
+
+            INNER JOIN empresas e
+              ON e.id = o.empresaId
+
+            WHERE p.id = ?
+          `)
+          .get(
             Number(
               resultado.lastInsertRowid
-            ),
+            )
+          );
 
-          mensaje:
-            'Postulación registrada correctamente.'
 
-        });
+      res
+        .status(201)
+        .json(
+          nueva
+        );
 
     }
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -2804,6 +3799,10 @@ app.post(
 );
 
 
+/* =========================================================
+   POSTULACIONES - ACTUALIZAR
+========================================================= */
+
 app.put(
   '/api/postulaciones/:id',
 
@@ -2811,15 +3810,109 @@ app.put(
 
     try {
 
-      const {
+      const id =
+        Number(
+          req.params.id
+        );
 
+
+      const existente =
+        db
+          .prepare(`
+            SELECT id
+
+            FROM postulaciones
+
+            WHERE id = ?
+          `)
+          .get(id);
+
+
+      if (
+        !existente
+      ) {
+
+        return res
+          .status(404)
+          .json({
+
+            mensaje:
+              'Postulación no encontrada.'
+
+          });
+
+      }
+
+
+      const {
         profesionalId,
         ofertaId,
         fechaPostulacion,
         estado,
         observaciones
-
       } = req.body;
+
+
+      if (
+        !profesionalId ||
+        !ofertaId ||
+        !fechaPostulacion
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'Profesional, oferta y fecha son obligatorios.'
+
+          });
+
+      }
+
+
+      const duplicada =
+        db
+          .prepare(`
+            SELECT id
+
+            FROM postulaciones
+
+            WHERE profesionalId = ?
+
+            AND ofertaId = ?
+
+            AND id <> ?
+          `)
+          .get(
+
+            Number(
+              profesionalId
+            ),
+
+            Number(
+              ofertaId
+            ),
+
+            id
+
+          );
+
+
+      if (
+        duplicada
+      ) {
+
+        return res
+          .status(400)
+          .json({
+
+            mensaje:
+              'Ese profesional ya está postulado a esa oferta.'
+
+          });
+
+      }
 
 
       db
@@ -2851,9 +3944,7 @@ app.put(
 
           observaciones || '',
 
-          Number(
-            req.params.id
-          )
+          id
 
         );
 
@@ -2869,7 +3960,10 @@ app.put(
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -2886,6 +3980,10 @@ app.put(
 );
 
 
+/* =========================================================
+   POSTULACIONES - ELIMINAR
+========================================================= */
+
 app.delete(
   '/api/postulaciones/:id',
 
@@ -2893,16 +3991,47 @@ app.delete(
 
     try {
 
+      const id =
+        Number(
+          req.params.id
+        );
+
+
+      const postulacion =
+        db
+          .prepare(`
+            SELECT id
+
+            FROM postulaciones
+
+            WHERE id = ?
+          `)
+          .get(id);
+
+
+      if (
+        !postulacion
+      ) {
+
+        return res
+          .status(404)
+          .json({
+
+            mensaje:
+              'Postulación no encontrada.'
+
+          });
+
+      }
+
+
       db
         .prepare(`
           DELETE FROM postulaciones
+
           WHERE id = ?
         `)
-        .run(
-          Number(
-            req.params.id
-          )
-        );
+        .run(id);
 
 
       res.json({
@@ -2916,7 +4045,10 @@ app.delete(
 
     catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       res
         .status(500)
@@ -2934,7 +4066,29 @@ app.delete(
 
 
 /* =========================================================
-   ERRORES MULTER
+   ERROR 404 API
+========================================================= */
+
+app.use(
+  '/api',
+
+  (req, res) => {
+
+    res
+      .status(404)
+      .json({
+
+        mensaje:
+          'Ruta de API no encontrada.'
+
+      });
+
+  }
+);
+
+
+/* =========================================================
+   MANEJO DE ERRORES
 ========================================================= */
 
 app.use(
@@ -2974,6 +4128,7 @@ app.use(
     ) {
 
       console.error(
+        'Error del servidor:',
         error
       );
 
@@ -2998,15 +4153,18 @@ app.use(
 
 
 /* =========================================================
-   INICIAR
+   INICIAR SERVIDOR
 ========================================================= */
 
 app.listen(
   PORT,
 
+  '0.0.0.0',
+
   () => {
 
     console.log('');
+
     console.log(
       '=============================================='
     );
@@ -3022,43 +4180,27 @@ app.listen(
     console.log('');
 
     console.log(
-      `Servidor: http://localhost:${PORT}`
-    );
-
-    console.log('');
-
-    console.log(
-      `Login: http://localhost:${PORT}/api/auth/login`
+      `Puerto: ${PORT}`
     );
 
     console.log(
-      `Registro profesional: http://localhost:${PORT}/api/auth/registro-profesional`
-    );
-
-    console.log(
-      `Registro empresa: http://localhost:${PORT}/api/auth/registro-empresa`
-    );
-
-    console.log(
-      `Profesionales: http://localhost:${PORT}/api/profesionales`
-    );
-
-    console.log(
-      `Empresas: http://localhost:${PORT}/api/empresas`
-    );
-
-    console.log(
-      `Ofertas: http://localhost:${PORT}/api/ofertas`
-    );
-
-    console.log(
-      `Postulaciones: http://localhost:${PORT}/api/postulaciones`
+      `Entorno: ${process.env.NODE_ENV || 'development'}`
     );
 
     console.log('');
 
     console.log(
       `Base de datos: ${rutaDB}`
+    );
+
+    console.log(
+      `Archivos: ${carpetaUploads}`
+    );
+
+    console.log('');
+
+    console.log(
+      'API iniciada correctamente.'
     );
 
     console.log('');

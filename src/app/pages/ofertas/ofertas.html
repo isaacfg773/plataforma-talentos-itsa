@@ -1,0 +1,546 @@
+<div class="pagina-ofertas">
+
+
+  <!-- CABECERA -->
+
+  <div class="encabezado">
+
+    <div>
+
+      <h1>
+        Ofertas laborales
+      </h1>
+
+      <p>
+        Registro y administración de oportunidades
+        laborales disponibles.
+      </p>
+
+    </div>
+
+
+    <button
+      class="btn-nuevo"
+      (click)="abrirNuevo()"
+    >
+
+      + Nueva oferta
+
+    </button>
+
+  </div>
+
+
+  <!-- BUSCADOR -->
+
+  <div class="barra-herramientas">
+
+    <div class="buscador">
+
+      <span>
+        🔎
+      </span>
+
+      <input
+        type="text"
+        [(ngModel)]="busqueda"
+        placeholder="Buscar por cargo, empresa, competencia o estado..."
+      >
+
+    </div>
+
+
+    <div class="contador">
+
+      {{ ofertasFiltradas.length }}
+
+      {{
+        ofertasFiltradas.length === 1
+          ? 'oferta'
+          : 'ofertas'
+      }}
+
+    </div>
+
+  </div>
+
+
+  <!-- TABLA -->
+
+  <div class="contenedor-tabla">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>
+            Cargo
+          </th>
+
+          <th>
+            Empresa
+          </th>
+
+          <th>
+            Experiencia
+          </th>
+
+          <th>
+            Publicación
+          </th>
+
+          <th>
+            Cierre
+          </th>
+
+          <th>
+            Estado
+          </th>
+
+          <th>
+            Acciones
+          </th>
+
+        </tr>
+
+      </thead>
+
+
+      <tbody>
+
+
+        <tr
+          *ngFor="let oferta of ofertasFiltradas"
+        >
+
+
+          <!-- CARGO -->
+
+          <td>
+
+            <div class="oferta-info">
+
+              <div class="oferta-icono">
+                💼
+              </div>
+
+
+              <div>
+
+                <strong>
+                  {{ oferta.cargo }}
+                </strong>
+
+                <small>
+                  ID #{{ oferta.id }}
+                </small>
+
+              </div>
+
+            </div>
+
+          </td>
+
+
+          <!-- EMPRESA -->
+
+          <td>
+
+            <strong class="empresa">
+
+              {{ oferta.empresaNombre }}
+
+            </strong>
+
+          </td>
+
+
+          <!-- EXPERIENCIA -->
+
+          <td>
+
+            {{
+              oferta.experienciaRequerida
+              || 'No especificada'
+            }}
+
+          </td>
+
+
+          <!-- PUBLICACIÓN -->
+
+          <td>
+
+            {{ oferta.fechaPublicacion }}
+
+          </td>
+
+
+          <!-- CIERRE -->
+
+          <td>
+
+            {{ oferta.fechaCierre }}
+
+          </td>
+
+
+          <!-- ESTADO -->
+
+          <td>
+
+            <span
+              class="estado activa"
+              *ngIf="oferta.estado === 'Activa'"
+            >
+              Activa
+            </span>
+
+
+            <span
+              class="estado pausada"
+              *ngIf="oferta.estado === 'Pausada'"
+            >
+              Pausada
+            </span>
+
+
+            <span
+              class="estado cerrada"
+              *ngIf="oferta.estado === 'Cerrada'"
+            >
+              Cerrada
+            </span>
+
+          </td>
+
+
+          <!-- ACCIONES -->
+
+          <td>
+
+            <div class="acciones-tabla">
+
+              <button
+                class="editar"
+                (click)="editar(oferta)"
+              >
+                Editar
+              </button>
+
+
+              <button
+                class="eliminar"
+                (click)="eliminar(oferta.id)"
+              >
+                Eliminar
+              </button>
+
+            </div>
+
+          </td>
+
+
+        </tr>
+
+
+        <!-- SIN RESULTADOS -->
+
+        <tr
+          *ngIf="ofertasFiltradas.length === 0"
+        >
+
+          <td
+            colspan="7"
+            class="sin-resultados"
+          >
+
+            No se encontraron ofertas laborales.
+
+          </td>
+
+        </tr>
+
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+  <!-- MODAL -->
+
+  <div
+    class="modal-fondo"
+    *ngIf="mostrarFormulario"
+  >
+
+    <div class="modal">
+
+
+      <!-- CABECERA MODAL -->
+
+      <div class="modal-header">
+
+        <div>
+
+          <h2>
+
+            {{
+              editando
+                ? 'Editar oferta laboral'
+                : 'Nueva oferta laboral'
+            }}
+
+          </h2>
+
+
+          <p>
+            Complete los datos de la oportunidad laboral.
+          </p>
+
+        </div>
+
+
+        <button
+          class="cerrar"
+          (click)="cancelar()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- FORMULARIO -->
+
+      <div class="formulario">
+
+
+        <!-- EMPRESA -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Empresa o institución *
+          </label>
+
+
+          <select
+            [(ngModel)]="ofertaActual.empresaId"
+          >
+
+            <option
+              [ngValue]="0"
+            >
+              Seleccione una empresa
+            </option>
+
+
+            <option
+              *ngFor="let empresa of empresas"
+              [ngValue]="empresa.id"
+            >
+
+              {{ empresa.nombre }}
+
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- CARGO -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Cargo requerido *
+          </label>
+
+
+          <input
+            type="text"
+            [(ngModel)]="ofertaActual.cargo"
+            placeholder="Ej. Secretaria Ejecutiva"
+          >
+
+        </div>
+
+
+        <!-- DESCRIPCIÓN -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Descripción de la oferta
+          </label>
+
+
+          <textarea
+            rows="3"
+            [(ngModel)]="ofertaActual.descripcion"
+            placeholder="Describa brevemente las funciones del puesto..."
+          ></textarea>
+
+        </div>
+
+
+        <!-- REQUISITOS -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Requisitos
+          </label>
+
+
+          <textarea
+            rows="3"
+            [(ngModel)]="ofertaActual.requisitos"
+            placeholder="Ej. Técnico Superior en Secretariado Ejecutivo, manejo de Office..."
+          ></textarea>
+
+        </div>
+
+
+        <!-- COMPETENCIAS -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Competencias solicitadas
+          </label>
+
+
+          <textarea
+            rows="3"
+            [(ngModel)]="ofertaActual.competencias"
+            placeholder="Ej. Comunicación, organización, trabajo en equipo..."
+          ></textarea>
+
+        </div>
+
+
+        <!-- EXPERIENCIA -->
+
+        <div class="campo">
+
+          <label>
+            Experiencia requerida
+          </label>
+
+
+          <input
+            type="text"
+            [(ngModel)]="ofertaActual.experienciaRequerida"
+            placeholder="Ej. 1 año"
+          >
+
+        </div>
+
+
+        <!-- ESTADO -->
+
+        <div class="campo">
+
+          <label>
+            Estado
+          </label>
+
+
+          <select
+            [(ngModel)]="ofertaActual.estado"
+          >
+
+            <option value="Activa">
+              Activa
+            </option>
+
+            <option value="Pausada">
+              Pausada
+            </option>
+
+            <option value="Cerrada">
+              Cerrada
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- FECHA PUBLICACIÓN -->
+
+        <div class="campo">
+
+          <label>
+            Fecha de publicación *
+          </label>
+
+
+          <input
+            type="date"
+            [(ngModel)]="ofertaActual.fechaPublicacion"
+          >
+
+        </div>
+
+
+        <!-- FECHA CIERRE -->
+
+        <div class="campo">
+
+          <label>
+            Fecha de cierre *
+          </label>
+
+
+          <input
+            type="date"
+            [(ngModel)]="ofertaActual.fechaCierre"
+          >
+
+        </div>
+
+
+      </div>
+
+
+      <!-- BOTONES -->
+
+      <div class="modal-footer">
+
+        <button
+          class="btn-cancelar"
+          (click)="cancelar()"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          class="btn-guardar"
+          (click)="guardar()"
+        >
+
+          {{
+            editando
+              ? 'Guardar cambios'
+              : 'Registrar oferta'
+          }}
+
+        </button>
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+</div>

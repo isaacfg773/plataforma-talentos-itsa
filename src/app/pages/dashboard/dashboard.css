@@ -1,0 +1,345 @@
+.dashboard {
+  width: 100%;
+}
+
+
+/* TITULO */
+
+.titulo-pagina {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.titulo-pagina h1 {
+  margin: 0;
+  color: #263238;
+  font-size: 25px;
+}
+
+.titulo-pagina p {
+  margin: 5px 0 0;
+  color: #78838c;
+  font-size: 13px;
+}
+
+.fecha {
+  background: #e7f4ed;
+  color: #08733f;
+
+  padding: 9px 15px;
+
+  border-radius: 8px;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+/* TARJETAS */
+
+.tarjetas {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(180px, 1fr));
+
+  gap: 18px;
+
+  margin-bottom: 25px;
+}
+
+.tarjeta {
+  background: white;
+
+  min-height: 125px;
+
+  border-radius: 12px;
+
+  padding: 20px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+
+  text-decoration: none;
+
+  border: 1px solid #eaedef;
+
+  box-shadow: 0 3px 10px rgba(0,0,0,.04);
+
+  transition: .2s;
+}
+
+.tarjeta:hover {
+  transform: translateY(-3px);
+
+  box-shadow: 0 7px 18px rgba(0,0,0,.08);
+}
+
+.tarjeta-icono {
+  width: 52px;
+  height: 52px;
+
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 23px;
+}
+
+.tarjeta-icono.verde {
+  background: #e6f5ed;
+}
+
+.tarjeta-icono.azul {
+  background: #e8f1fb;
+}
+
+.tarjeta-icono.naranja {
+  background: #fff1dd;
+}
+
+.tarjeta-icono.morado {
+  background: #f0e9fb;
+}
+
+.tarjeta-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.tarjeta-info span {
+  color: #64717a;
+  font-size: 12px;
+}
+
+.tarjeta-info strong {
+  color: #263238;
+  font-size: 27px;
+  margin: 3px 0;
+}
+
+.tarjeta-info small {
+  color: #9aa2a8;
+  font-size: 10px;
+}
+
+
+/* PARTE INFERIOR */
+
+.grid-inferior {
+  display: grid;
+
+  grid-template-columns:
+    2fr 1fr;
+
+  gap: 20px;
+}
+
+.panel {
+  background: white;
+
+  border-radius: 12px;
+
+  padding: 22px;
+
+  border: 1px solid #eaedef;
+
+  box-shadow: 0 3px 10px rgba(0,0,0,.04);
+}
+
+
+/* CABECERA PANEL */
+
+.panel-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 20px;
+}
+
+.panel-header h2 {
+  margin: 0;
+
+  font-size: 16px;
+
+  color: #263238;
+}
+
+.panel-header p {
+  margin: 5px 0 0;
+
+  font-size: 11px;
+
+  color: #8a949b;
+}
+
+.panel-header a {
+  color: #08733f;
+
+  text-decoration: none;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+
+/* TABLA */
+
+.tabla-responsive {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+
+  padding: 11px;
+
+  font-size: 11px;
+
+  color: #7d878d;
+
+  border-bottom: 1px solid #eceff1;
+
+  font-weight: 600;
+}
+
+td {
+  padding: 14px 11px;
+
+  border-bottom: 1px solid #f0f2f3;
+
+  font-size: 12px;
+
+  color: #58636b;
+}
+
+td strong {
+  color: #344047;
+}
+
+.estado {
+  display: inline-block;
+
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  font-size: 10px;
+
+  font-weight: 600;
+}
+
+.estado.activo {
+  background: #e5f5ed;
+  color: #08733f;
+}
+
+.estado.revision {
+  background: #fff4dd;
+  color: #a86c00;
+}
+
+
+/* ACCIONES RAPIDAS */
+
+.acciones > a {
+  display: grid;
+
+  grid-template-columns:
+    39px 1fr 20px;
+
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 13px 5px;
+
+  text-decoration: none;
+
+  border-bottom: 1px solid #f0f2f3;
+
+  color: #263238;
+}
+
+.acciones > a:last-child {
+  border-bottom: none;
+}
+
+.acciones > a:hover {
+  background: #f8faf9;
+}
+
+.accion-icono {
+  height: 36px;
+  width: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background: #e7f4ed;
+
+  color: #08733f;
+
+  font-weight: bold;
+}
+
+.acciones a div {
+  display: flex;
+  flex-direction: column;
+}
+
+.acciones strong {
+  font-size: 12px;
+}
+
+.acciones small {
+  margin-top: 3px;
+
+  color: #90999f;
+
+  font-size: 10px;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 1200px) {
+
+  .tarjetas {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+}
+
+
+@media (max-width: 850px) {
+
+  .grid-inferior {
+    grid-template-columns: 1fr;
+  }
+
+  .tarjetas {
+    grid-template-columns: 1fr;
+  }
+
+}

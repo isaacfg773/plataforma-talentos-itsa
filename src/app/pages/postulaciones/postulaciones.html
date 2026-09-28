@@ -1,0 +1,537 @@
+<div class="pagina-postulaciones">
+
+  <!-- CABECERA -->
+
+  <div class="encabezado">
+
+    <div>
+
+      <h1>
+        Postulaciones
+      </h1>
+
+      <p>
+        Registro y seguimiento de postulaciones
+        a ofertas laborales.
+      </p>
+
+    </div>
+
+
+    <button
+      class="btn-nuevo"
+      (click)="abrirNuevo()"
+    >
+      + Nueva postulación
+    </button>
+
+  </div>
+
+
+  <!-- BUSCADOR -->
+
+  <div class="barra-herramientas">
+
+    <div class="buscador">
+
+      <span>
+        🔎
+      </span>
+
+      <input
+        type="text"
+        [(ngModel)]="busqueda"
+        placeholder="Buscar profesional, empresa, oferta o estado..."
+      >
+
+    </div>
+
+
+    <div class="contador">
+
+      {{ postulacionesFiltradas.length }}
+
+      {{
+        postulacionesFiltradas.length === 1
+          ? 'postulación'
+          : 'postulaciones'
+      }}
+
+    </div>
+
+  </div>
+
+
+  <!-- TABLA -->
+
+  <div class="contenedor-tabla">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>
+            Profesional
+          </th>
+
+          <th>
+            Oferta
+          </th>
+
+          <th>
+            Empresa
+          </th>
+
+          <th>
+            Fecha
+          </th>
+
+          <th>
+            Estado
+          </th>
+
+          <th>
+            Observaciones
+          </th>
+
+          <th>
+            Acciones
+          </th>
+
+        </tr>
+
+      </thead>
+
+
+      <tbody>
+
+        <tr
+          *ngFor="let postulacion of postulacionesFiltradas"
+        >
+
+          <!-- PROFESIONAL -->
+
+          <td>
+
+            <div class="profesional-info">
+
+              <div class="avatar">
+
+                {{
+                  postulacion.profesionalNombre
+                    ?.charAt(0)
+                }}
+
+              </div>
+
+
+              <div>
+
+                <strong>
+
+                  {{
+                    postulacion.profesionalNombre
+                  }}
+
+                </strong>
+
+                <small>
+
+                  CI:
+                  {{
+                    postulacion.profesionalCI
+                  }}
+
+                </small>
+
+              </div>
+
+            </div>
+
+          </td>
+
+
+          <!-- OFERTA -->
+
+          <td>
+
+            <strong class="oferta">
+
+              {{
+                postulacion.ofertaCargo
+              }}
+
+            </strong>
+
+          </td>
+
+
+          <!-- EMPRESA -->
+
+          <td>
+
+            {{
+              postulacion.empresaNombre
+            }}
+
+          </td>
+
+
+          <!-- FECHA -->
+
+          <td>
+
+            {{
+              postulacion.fechaPostulacion
+            }}
+
+          </td>
+
+
+          <!-- ESTADO -->
+
+          <td>
+
+            <span
+              class="estado postulada"
+              *ngIf="postulacion.estado === 'Postulada'"
+            >
+              Postulada
+            </span>
+
+
+            <span
+              class="estado revision"
+              *ngIf="postulacion.estado === 'En revisión'"
+            >
+              En revisión
+            </span>
+
+
+            <span
+              class="estado convocada"
+              *ngIf="postulacion.estado === 'Convocada'"
+            >
+              Convocada
+            </span>
+
+
+            <span
+              class="estado seleccionada"
+              *ngIf="postulacion.estado === 'Seleccionada'"
+            >
+              Seleccionada
+            </span>
+
+
+            <span
+              class="estado no-seleccionada"
+              *ngIf="postulacion.estado === 'No seleccionada'"
+            >
+              No seleccionada
+            </span>
+
+          </td>
+
+
+          <!-- OBSERVACIONES -->
+
+          <td>
+
+            <span
+              class="observaciones"
+              [title]="postulacion.observaciones"
+            >
+
+              {{
+                postulacion.observaciones
+                || '-'
+              }}
+
+            </span>
+
+          </td>
+
+
+          <!-- ACCIONES -->
+
+          <td>
+
+            <div class="acciones-tabla">
+
+              <button
+                class="editar"
+                (click)="editar(postulacion)"
+              >
+                Editar
+              </button>
+
+
+              <button
+                class="eliminar"
+                (click)="eliminar(postulacion.id)"
+              >
+                Eliminar
+              </button>
+
+            </div>
+
+          </td>
+
+        </tr>
+
+
+        <!-- SIN RESULTADOS -->
+
+        <tr
+          *ngIf="postulacionesFiltradas.length === 0"
+        >
+
+          <td
+            colspan="7"
+            class="sin-resultados"
+          >
+
+            No se encontraron postulaciones.
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+  <!-- MODAL -->
+
+  <div
+    class="modal-fondo"
+    *ngIf="mostrarFormulario"
+  >
+
+    <div class="modal">
+
+
+      <div class="modal-header">
+
+        <div>
+
+          <h2>
+
+            {{
+              editando
+                ? 'Editar postulación'
+                : 'Nueva postulación'
+            }}
+
+          </h2>
+
+
+          <p>
+            Relacione un profesional con una
+            oferta laboral.
+          </p>
+
+        </div>
+
+
+        <button
+          class="cerrar"
+          (click)="cancelar()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- FORMULARIO -->
+
+      <div class="formulario">
+
+
+        <!-- PROFESIONAL -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Profesional *
+          </label>
+
+
+          <select
+            [(ngModel)]="postulacionActual.profesionalId"
+          >
+
+            <option
+              [ngValue]="0"
+            >
+              Seleccione un profesional
+            </option>
+
+
+            <option
+              *ngFor="let profesional of profesionales"
+              [ngValue]="profesional.id"
+            >
+
+              {{ profesional.nombres }}
+              {{ profesional.apellidos }}
+              — CI {{ profesional.ci }}
+
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- OFERTA -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Oferta laboral *
+          </label>
+
+
+          <select
+            [(ngModel)]="postulacionActual.ofertaId"
+          >
+
+            <option
+              [ngValue]="0"
+            >
+              Seleccione una oferta
+            </option>
+
+
+            <option
+              *ngFor="let oferta of ofertas"
+              [ngValue]="oferta.id"
+            >
+
+              {{ oferta.cargo }}
+              —
+              {{ oferta.empresaNombre }}
+
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- FECHA -->
+
+        <div class="campo">
+
+          <label>
+            Fecha de postulación *
+          </label>
+
+
+          <input
+            type="date"
+            [(ngModel)]="postulacionActual.fechaPostulacion"
+          >
+
+        </div>
+
+
+        <!-- ESTADO -->
+
+        <div class="campo">
+
+          <label>
+            Estado
+          </label>
+
+
+          <select
+            [(ngModel)]="postulacionActual.estado"
+          >
+
+            <option value="Postulada">
+              Postulada
+            </option>
+
+            <option value="En revisión">
+              En revisión
+            </option>
+
+            <option value="Convocada">
+              Convocada
+            </option>
+
+            <option value="Seleccionada">
+              Seleccionada
+            </option>
+
+            <option value="No seleccionada">
+              No seleccionada
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- OBSERVACIONES -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Observaciones
+          </label>
+
+
+          <textarea
+            rows="4"
+            [(ngModel)]="postulacionActual.observaciones"
+            placeholder="Ej. Perfil en revisión por Recursos Humanos..."
+          ></textarea>
+
+        </div>
+
+      </div>
+
+
+      <!-- BOTONES -->
+
+      <div class="modal-footer">
+
+        <button
+          class="btn-cancelar"
+          (click)="cancelar()"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          class="btn-guardar"
+          (click)="guardar()"
+        >
+
+          {{
+            editando
+              ? 'Guardar cambios'
+              : 'Registrar postulación'
+          }}
+
+        </button>
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+</div>

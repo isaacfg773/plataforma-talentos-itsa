@@ -1,0 +1,507 @@
+<div class="pagina-empresas">
+
+
+  <!-- ==============================
+       CABECERA
+  =============================== -->
+
+  <div class="encabezado">
+
+    <div>
+
+      <h1>
+        Empresas e instituciones
+      </h1>
+
+      <p>
+        Registro y administración de organizaciones
+        empleadoras vinculadas a la plataforma.
+      </p>
+
+    </div>
+
+
+    <button
+      class="btn-nuevo"
+      (click)="abrirNuevo()"
+    >
+
+      + Nueva empresa
+
+    </button>
+
+  </div>
+
+
+  <!-- ==============================
+       BUSCADOR
+  =============================== -->
+
+  <div class="barra-herramientas">
+
+    <div class="buscador">
+
+      <span>
+        🔎
+      </span>
+
+      <input
+        type="text"
+        [(ngModel)]="busqueda"
+        placeholder="Buscar empresa, área o persona de contacto..."
+      >
+
+    </div>
+
+
+    <div class="contador">
+
+      {{ empresasFiltradas.length }}
+
+      {{
+        empresasFiltradas.length === 1
+          ? 'empresa'
+          : 'empresas'
+      }}
+
+    </div>
+
+  </div>
+
+
+  <!-- ==============================
+       TABLA
+  =============================== -->
+
+  <div class="contenedor-tabla">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>
+            Empresa / Institución
+          </th>
+
+          <th>
+            Área de trabajo
+          </th>
+
+          <th>
+            Persona de contacto
+          </th>
+
+          <th>
+            Teléfono
+          </th>
+
+          <th>
+            Correo
+          </th>
+
+          <th>
+            Dirección
+          </th>
+
+          <th>
+            Acciones
+          </th>
+
+        </tr>
+
+      </thead>
+
+
+      <tbody>
+
+
+        <tr
+          *ngFor="let empresa of empresasFiltradas"
+        >
+
+
+          <!-- EMPRESA -->
+
+          <td>
+
+            <div class="empresa-tabla">
+
+              <div class="empresa-icono">
+
+                🏢
+
+              </div>
+
+
+              <div>
+
+                <strong>
+
+                  {{ empresa.nombre }}
+
+                </strong>
+
+                <small>
+
+                  ID #{{ empresa.id }}
+
+                </small>
+
+              </div>
+
+            </div>
+
+          </td>
+
+
+          <!-- ÁREA -->
+
+          <td>
+
+            <span
+              class="area"
+              *ngIf="empresa.areaTrabajo"
+            >
+
+              {{ empresa.areaTrabajo }}
+
+            </span>
+
+
+            <span
+              *ngIf="!empresa.areaTrabajo"
+              class="sin-dato"
+            >
+
+              No registrado
+
+            </span>
+
+          </td>
+
+
+          <!-- CONTACTO -->
+
+          <td>
+
+            {{
+              empresa.personaContacto
+              || '-'
+            }}
+
+          </td>
+
+
+          <!-- TELÉFONO -->
+
+          <td>
+
+            {{
+              empresa.telefono
+              || '-'
+            }}
+
+          </td>
+
+
+          <!-- CORREO -->
+
+          <td>
+
+            {{
+              empresa.correo
+              || '-'
+            }}
+
+          </td>
+
+
+          <!-- DIRECCIÓN -->
+
+          <td>
+
+            {{
+              empresa.direccion
+              || '-'
+            }}
+
+          </td>
+
+
+          <!-- ACCIONES -->
+
+          <td>
+
+            <div class="acciones-tabla">
+
+              <button
+                class="editar"
+                (click)="editar(empresa)"
+              >
+
+                Editar
+
+              </button>
+
+
+              <button
+                class="eliminar"
+                (click)="eliminar(empresa.id)"
+              >
+
+                Eliminar
+
+              </button>
+
+            </div>
+
+          </td>
+
+        </tr>
+
+
+        <!-- SIN RESULTADOS -->
+
+        <tr
+          *ngIf="empresasFiltradas.length === 0"
+        >
+
+          <td
+            colspan="7"
+            class="sin-resultados"
+          >
+
+            No se encontraron empresas o instituciones.
+
+          </td>
+
+        </tr>
+
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+  <!-- ==============================
+       MODAL
+  =============================== -->
+
+  <div
+    class="modal-fondo"
+    *ngIf="mostrarFormulario"
+  >
+
+
+    <div class="modal">
+
+
+      <!-- HEADER -->
+
+      <div class="modal-header">
+
+
+        <div>
+
+          <h2>
+
+            {{
+              editando
+                ? 'Editar empresa'
+                : 'Nueva empresa'
+            }}
+
+          </h2>
+
+
+          <p>
+
+            Complete la información de la
+            empresa o institución empleadora.
+
+          </p>
+
+        </div>
+
+
+        <button
+          class="cerrar"
+          (click)="cancelar()"
+        >
+
+          ×
+
+        </button>
+
+      </div>
+
+
+      <!-- FORMULARIO -->
+
+      <div class="formulario">
+
+
+        <!-- NOMBRE -->
+
+        <div class="campo campo-completo">
+
+          <label>
+
+            Nombre de la empresa o institución *
+
+          </label>
+
+
+          <input
+            type="text"
+            [(ngModel)]="empresaActual.nombre"
+            placeholder="Ej. Empresa ABC S.R.L."
+          >
+
+        </div>
+
+
+        <!-- ÁREA -->
+
+        <div class="campo">
+
+          <label>
+
+            Área de trabajo
+
+          </label>
+
+
+          <input
+            type="text"
+            [(ngModel)]="empresaActual.areaTrabajo"
+            placeholder="Ej. Administración"
+          >
+
+        </div>
+
+
+        <!-- CONTACTO -->
+
+        <div class="campo">
+
+          <label>
+
+            Persona de contacto
+
+          </label>
+
+
+          <input
+            type="text"
+            [(ngModel)]="empresaActual.personaContacto"
+            placeholder="Ej. María López"
+          >
+
+        </div>
+
+
+        <!-- TELÉFONO -->
+
+        <div class="campo">
+
+          <label>
+
+            Teléfono
+
+          </label>
+
+
+          <input
+            type="text"
+            [(ngModel)]="empresaActual.telefono"
+            placeholder="Ej. 4440000"
+          >
+
+        </div>
+
+
+        <!-- CORREO -->
+
+        <div class="campo">
+
+          <label>
+
+            Correo electrónico
+
+          </label>
+
+
+          <input
+            type="email"
+            [(ngModel)]="empresaActual.correo"
+            placeholder="rrhh@empresa.com"
+          >
+
+        </div>
+
+
+        <!-- DIRECCIÓN -->
+
+        <div class="campo campo-completo">
+
+          <label>
+
+            Dirección
+
+          </label>
+
+
+          <input
+            type="text"
+            [(ngModel)]="empresaActual.direccion"
+            placeholder="Ej. Av. Circunvalación N.º 123"
+          >
+
+        </div>
+
+
+      </div>
+
+
+      <!-- FOOTER -->
+
+      <div class="modal-footer">
+
+
+        <button
+          class="btn-cancelar"
+          (click)="cancelar()"
+        >
+
+          Cancelar
+
+        </button>
+
+
+        <button
+          class="btn-guardar"
+          (click)="guardar()"
+        >
+
+          {{
+            editando
+              ? 'Guardar cambios'
+              : 'Registrar empresa'
+          }}
+
+        </button>
+
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+</div>

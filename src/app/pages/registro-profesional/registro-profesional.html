@@ -1,0 +1,514 @@
+<div class="pagina-registro">
+
+  <div class="contenedor-registro">
+
+
+    <!-- ENCABEZADO -->
+
+    <div class="encabezado">
+
+      <a
+        routerLink="/login"
+        class="volver"
+      >
+        ← Volver
+      </a>
+
+
+      <div class="marca">
+
+        <div class="logo">
+          ITSa
+        </div>
+
+        <div>
+
+          <h1>
+            Registro de Profesional
+          </h1>
+
+          <p>
+            Plataforma Digital de Talentos
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="descripcion">
+
+        Cree su perfil profesional para acceder
+        a ofertas laborales y postular directamente
+        desde la plataforma.
+
+      </div>
+
+    </div>
+
+
+    <!-- ERROR -->
+
+    @if (error) {
+
+      <div class="mensaje error">
+
+        ⚠ {{ error }}
+
+      </div>
+
+    }
+
+
+    <!-- ÉXITO -->
+
+    @if (mensaje) {
+
+      <div class="mensaje exito">
+
+        ✓ {{ mensaje }}
+
+        <span>
+          Redirigiendo al inicio de sesión...
+        </span>
+
+      </div>
+
+    }
+
+
+    <!-- FORMULARIO -->
+
+    <div class="formulario">
+
+
+      <div class="seccion-titulo">
+
+        <span>
+          1
+        </span>
+
+        <div>
+
+          <strong>
+            Información personal
+          </strong>
+
+          <small>
+            Datos básicos de identificación.
+          </small>
+
+        </div>
+
+      </div>
+
+
+      <div class="grid">
+
+
+        <div class="campo">
+
+          <label>
+            Nombres *
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="nombres"
+            placeholder="Ej. María Neyda"
+          >
+
+        </div>
+
+
+        <div class="campo">
+
+          <label>
+            Apellidos *
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="apellidos"
+            placeholder="Ej. Mendoza Vargas"
+          >
+
+        </div>
+
+
+        <div class="campo">
+
+          <label>
+            Cédula de identidad *
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="ci"
+            placeholder="Ej. 12345678"
+          >
+
+        </div>
+
+
+        <div class="campo">
+
+          <label>
+            Teléfono
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="telefono"
+            placeholder="Ej. 70712345"
+          >
+
+        </div>
+
+
+        <div class="campo campo-completo">
+
+          <label>
+            Correo electrónico *
+          </label>
+
+          <input
+            type="email"
+            [(ngModel)]="correo"
+            placeholder="nombre@correo.com"
+          >
+
+          <small>
+            Este correo será utilizado para iniciar sesión.
+          </small>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- PROFESIONAL -->
+
+      <div class="seccion-titulo segunda">
+
+        <span>
+          2
+        </span>
+
+        <div>
+
+          <strong>
+            Perfil profesional
+          </strong>
+
+          <small>
+            Información laboral y competencias.
+          </small>
+
+        </div>
+
+      </div>
+
+
+      <div class="grid">
+
+
+        <div class="campo">
+
+          <label>
+            Especialidad
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="especialidad"
+            placeholder="Ej. Secretariado Ejecutivo"
+          >
+
+        </div>
+
+
+        <div class="campo">
+
+          <label>
+            Nivel de inglés
+          </label>
+
+          <select
+            [(ngModel)]="nivelIngles"
+          >
+
+            <option value="">
+              Seleccione
+            </option>
+
+            <option value="Básico">
+              Básico
+            </option>
+
+            <option value="Intermedio">
+              Intermedio
+            </option>
+
+            <option value="Avanzado">
+              Avanzado
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="campo">
+
+          <label>
+            ¿Habla quechua?
+          </label>
+
+          <select
+            [(ngModel)]="quechua"
+          >
+
+            <option value="">
+              Seleccione
+            </option>
+
+            <option value="Sí">
+              Sí
+            </option>
+
+            <option value="No">
+              No
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="campo">
+
+          <label>
+            Currículum PDF
+          </label>
+
+          <label class="archivo">
+
+            <input
+              type="file"
+              accept=".pdf,application/pdf"
+              (change)="seleccionarCV($event)"
+            >
+
+            <span>
+              📄 Seleccionar CV
+            </span>
+
+          </label>
+
+
+          @if (archivoCV) {
+
+            <small class="archivo-seleccionado">
+
+              ✓ {{ archivoCV.name }}
+
+            </small>
+
+          }
+
+          @else {
+
+            <small>
+              Archivo PDF, máximo 5 MB.
+            </small>
+
+          }
+
+        </div>
+
+
+        <div class="campo campo-completo">
+
+          <label>
+            Experiencia profesional
+          </label>
+
+          <textarea
+            rows="4"
+            [(ngModel)]="experiencia"
+            placeholder="Describa brevemente su experiencia laboral, funciones desempeñadas, cursos o prácticas..."
+          ></textarea>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- SEGURIDAD -->
+
+      <div class="seccion-titulo segunda">
+
+        <span>
+          3
+        </span>
+
+        <div>
+
+          <strong>
+            Datos de acceso
+          </strong>
+
+          <small>
+            Cree una contraseña para ingresar a su portal.
+          </small>
+
+        </div>
+
+      </div>
+
+
+      <div class="grid">
+
+
+        <div class="campo">
+
+          <label>
+            Contraseña *
+          </label>
+
+          <div class="password">
+
+            <input
+              [type]="
+                mostrarPassword
+                  ? 'text'
+                  : 'password'
+              "
+              [(ngModel)]="password"
+              placeholder="Mínimo 6 caracteres"
+            >
+
+
+            <button
+              type="button"
+              (click)="
+                mostrarPassword =
+                !mostrarPassword
+              "
+            >
+
+              {{
+                mostrarPassword
+                  ? 'Ocultar'
+                  : 'Ver'
+              }}
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="campo">
+
+          <label>
+            Confirmar contraseña *
+          </label>
+
+          <div class="password">
+
+            <input
+              [type]="
+                mostrarConfirmacion
+                  ? 'text'
+                  : 'password'
+              "
+              [(ngModel)]="confirmarPassword"
+              placeholder="Repita su contraseña"
+            >
+
+
+            <button
+              type="button"
+              (click)="
+                mostrarConfirmacion =
+                !mostrarConfirmacion
+              "
+            >
+
+              {{
+                mostrarConfirmacion
+                  ? 'Ocultar'
+                  : 'Ver'
+              }}
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- ACCIONES -->
+
+      <div class="acciones">
+
+        <a
+          routerLink="/login"
+          class="btn-cancelar"
+        >
+
+          Cancelar
+
+        </a>
+
+
+        <button
+          type="button"
+          class="btn-registrar"
+          (click)="registrar()"
+          [disabled]="cargando"
+        >
+
+          @if (cargando) {
+
+            Registrando...
+
+          }
+
+          @else {
+
+            Crear cuenta profesional
+
+          }
+
+        </button>
+
+      </div>
+
+
+      <div class="ya-cuenta">
+
+        ¿Ya tiene una cuenta?
+
+        <a
+          routerLink="/login"
+        >
+          Iniciar sesión
+        </a>
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+</div>

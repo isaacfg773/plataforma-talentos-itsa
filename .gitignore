@@ -1,0 +1,8 @@
+node_modules/
+backend/node_modules/
+.angular/
+dist/
+.vscode/
+.env
+backend/database/
+backend/uploads/

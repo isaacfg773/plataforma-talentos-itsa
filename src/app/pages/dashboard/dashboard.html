@@ -1,0 +1,230 @@
+<div class="dashboard">
+
+  <div class="titulo-pagina">
+    <div>
+      <h1>Panel principal</h1>
+      <p>Resumen general de la Plataforma Digital de Talentos</p>
+    </div>
+
+    <div class="fecha">
+      Gestión 2026
+    </div>
+  </div>
+
+
+  <!-- TARJETAS -->
+
+  <div class="tarjetas">
+
+    <a routerLink="/profesionales" class="tarjeta">
+      <div class="tarjeta-icono verde">
+        👤
+      </div>
+
+      <div class="tarjeta-info">
+        <span>Profesionales</span>
+        <strong>24</strong>
+        <small>Perfiles registrados</small>
+      </div>
+    </a>
+
+
+    <a routerLink="/empresas" class="tarjeta">
+      <div class="tarjeta-icono azul">
+        🏢
+      </div>
+
+      <div class="tarjeta-info">
+        <span>Empresas</span>
+        <strong>8</strong>
+        <small>Instituciones registradas</small>
+      </div>
+    </a>
+
+
+    <a routerLink="/ofertas" class="tarjeta">
+      <div class="tarjeta-icono naranja">
+        💼
+      </div>
+
+      <div class="tarjeta-info">
+        <span>Ofertas laborales</span>
+        <strong>12</strong>
+        <small>Oportunidades registradas</small>
+      </div>
+    </a>
+
+
+    <a routerLink="/postulaciones" class="tarjeta">
+      <div class="tarjeta-icono morado">
+        📋
+      </div>
+
+      <div class="tarjeta-info">
+        <span>Postulaciones</span>
+        <strong>18</strong>
+        <small>Procesos registrados</small>
+      </div>
+    </a>
+
+  </div>
+
+
+  <!-- SEGUNDA FILA -->
+
+  <div class="grid-inferior">
+
+    <!-- OFERTAS RECIENTES -->
+
+    <section class="panel">
+
+      <div class="panel-header">
+        <div>
+          <h2>Ofertas laborales recientes</h2>
+          <p>Últimas oportunidades registradas</p>
+        </div>
+
+        <a routerLink="/ofertas">
+          Ver todas
+        </a>
+      </div>
+
+
+      <div class="tabla-responsive">
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Cargo</th>
+              <th>Empresa</th>
+              <th>Fecha límite</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            <tr>
+              <td>
+                <strong>Secretaria Ejecutiva</strong>
+              </td>
+
+              <td>Empresa ABC</td>
+
+              <td>05/10/2026</td>
+
+              <td>
+                <span class="estado activo">
+                  Activa
+                </span>
+              </td>
+            </tr>
+
+
+            <tr>
+              <td>
+                <strong>Asistente Administrativa</strong>
+              </td>
+
+              <td>Institución XYZ</td>
+
+              <td>08/10/2026</td>
+
+              <td>
+                <span class="estado activo">
+                  Activa
+                </span>
+              </td>
+            </tr>
+
+
+            <tr>
+              <td>
+                <strong>Auxiliar de Oficina</strong>
+              </td>
+
+              <td>Empresa Sacaba</td>
+
+              <td>12/10/2026</td>
+
+              <td>
+                <span class="estado revision">
+                  Revisión
+                </span>
+              </td>
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+    <!-- ACCIONES RÁPIDAS -->
+
+    <section class="panel acciones">
+
+      <div class="panel-header">
+        <div>
+          <h2>Acciones rápidas</h2>
+          <p>Accesos principales</p>
+        </div>
+      </div>
+
+
+      <a routerLink="/profesionales">
+        <span class="accion-icono">＋</span>
+
+        <div>
+          <strong>Registrar profesional</strong>
+          <small>Agregar un nuevo perfil</small>
+        </div>
+
+        <span>›</span>
+      </a>
+
+
+      <a routerLink="/empresas">
+        <span class="accion-icono">＋</span>
+
+        <div>
+          <strong>Registrar empresa</strong>
+          <small>Agregar institución empleadora</small>
+        </div>
+
+        <span>›</span>
+      </a>
+
+
+      <a routerLink="/ofertas">
+        <span class="accion-icono">＋</span>
+
+        <div>
+          <strong>Nueva oferta laboral</strong>
+          <small>Registrar una oportunidad</small>
+        </div>
+
+        <span>›</span>
+      </a>
+
+
+      <a routerLink="/consultas">
+        <span class="accion-icono">⌕</span>
+
+        <div>
+          <strong>Buscar talentos</strong>
+          <small>Consultar perfiles profesionales</small>
+        </div>
+
+        <span>›</span>
+      </a>
+
+    </section>
+
+  </div>
+
+</div>

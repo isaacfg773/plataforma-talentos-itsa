@@ -1,0 +1,241 @@
+<div class="login-pagina">
+
+  <div class="login-contenedor">
+
+
+    <!-- LOGO -->
+
+    <div class="marca-login">
+
+      <div class="logo-login">
+
+        ITSa
+
+      </div>
+
+
+      <h1>
+
+        Plataforma Digital de Talentos
+
+      </h1>
+
+
+      <p>
+
+        Instituto Tecnológico Sacaba
+
+      </p>
+
+    </div>
+
+
+    <!-- TÍTULO -->
+
+    <div class="titulo-login">
+
+      <h2>
+
+        Iniciar sesión
+
+      </h2>
+
+
+      <p>
+
+        Ingrese sus credenciales para acceder
+        a la plataforma.
+
+      </p>
+
+    </div>
+
+
+    <!-- ERROR -->
+
+    <div
+      class="mensaje-error"
+      *ngIf="error"
+    >
+
+      ⚠ {{ error }}
+
+    </div>
+
+
+    <!-- CORREO -->
+
+    <div class="campo">
+
+      <label>
+
+        Correo electrónico
+
+      </label>
+
+
+      <input
+        type="email"
+        [(ngModel)]="correo"
+        placeholder="correo@ejemplo.com"
+        (keyup.enter)="ingresar()"
+      >
+
+    </div>
+
+
+    <!-- PASSWORD -->
+
+    <div class="campo">
+
+      <label>
+
+        Contraseña
+
+      </label>
+
+
+      <div class="password">
+
+        <input
+
+          [type]="
+            mostrarPassword
+              ? 'text'
+              : 'password'
+          "
+
+          [(ngModel)]="password"
+
+          placeholder="Ingrese su contraseña"
+
+          (keyup.enter)="ingresar()"
+
+        >
+
+
+        <button
+          type="button"
+          class="btn-ver"
+          (click)="
+            mostrarPassword =
+            !mostrarPassword
+          "
+        >
+
+          {{
+            mostrarPassword
+              ? 'Ocultar'
+              : 'Ver'
+          }}
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- LOGIN -->
+
+    <button
+      class="btn-ingresar"
+      (click)="ingresar()"
+      [disabled]="cargando"
+    >
+
+      {{
+        cargando
+          ? 'Ingresando...'
+          : 'Ingresar'
+      }}
+
+    </button>
+
+
+    <!-- SEPARADOR -->
+
+    <div class="separador">
+
+      <span>
+
+        ¿No tiene una cuenta?
+
+      </span>
+
+    </div>
+
+
+    <!-- REGISTRO -->
+
+    <div class="registro-opciones">
+
+
+      <a
+        routerLink="/registro-profesional"
+        class="registro-link"
+      >
+
+        <span class="registro-icono">
+          👤
+        </span>
+
+
+        <div>
+
+          <strong>
+
+            Registrarme como profesional
+
+          </strong>
+
+
+          <small>
+
+            Cree su perfil y postule
+            a oportunidades laborales.
+
+          </small>
+
+        </div>
+
+      </a>
+
+
+      <a
+        routerLink="/registro-empresa"
+        class="registro-link"
+      >
+
+        <span class="registro-icono">
+          🏢
+        </span>
+
+
+        <div>
+
+          <strong>
+
+            Registrar mi empresa
+
+          </strong>
+
+
+          <small>
+
+            Registre su organización
+            y publique ofertas laborales.
+
+          </small>
+
+        </div>
+
+      </a>
+
+
+    </div>
+
+
+  </div>
+
+</div>

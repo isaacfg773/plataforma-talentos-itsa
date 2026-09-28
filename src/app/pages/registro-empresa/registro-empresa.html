@@ -1,0 +1,415 @@
+<div class="pagina-registro">
+
+  <div class="contenedor-registro">
+
+
+    <!-- ENCABEZADO -->
+
+    <div class="encabezado">
+
+      <a
+        routerLink="/login"
+        class="volver"
+      >
+        ← Volver
+      </a>
+
+
+      <div class="marca">
+
+        <div class="logo">
+          🏢
+        </div>
+
+
+        <div>
+
+          <h1>
+            Registro de Empresa
+          </h1>
+
+          <p>
+            Plataforma Digital de Talentos
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="descripcion">
+
+        Registre su empresa o institución para publicar
+        oportunidades laborales y acceder a profesionales
+        registrados en la plataforma.
+
+      </div>
+
+    </div>
+
+
+    <!-- ERROR -->
+
+    @if (error) {
+
+      <div class="mensaje error">
+
+        ⚠ {{ error }}
+
+      </div>
+
+    }
+
+
+    <!-- ÉXITO -->
+
+    @if (mensaje) {
+
+      <div class="mensaje exito">
+
+        ✓ {{ mensaje }}
+
+        <span>
+          Redirigiendo al inicio de sesión...
+        </span>
+
+      </div>
+
+    }
+
+
+    <!-- FORMULARIO -->
+
+    <div class="formulario">
+
+
+      <!-- SECCIÓN 1 -->
+
+      <div class="seccion-titulo">
+
+        <span>
+          1
+        </span>
+
+        <div>
+
+          <strong>
+            Información de la empresa
+          </strong>
+
+          <small>
+            Datos generales de la organización.
+          </small>
+
+        </div>
+
+      </div>
+
+
+      <div class="grid">
+
+
+        <!-- NOMBRE -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Nombre de la empresa o institución *
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="nombre"
+            placeholder="Ej. Empresa ABC S.R.L."
+          >
+
+        </div>
+
+
+        <!-- ÁREA -->
+
+        <div class="campo">
+
+          <label>
+            Área de trabajo
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="areaTrabajo"
+            placeholder="Ej. Administración"
+          >
+
+        </div>
+
+
+        <!-- PERSONA CONTACTO -->
+
+        <div class="campo">
+
+          <label>
+            Persona de contacto
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="personaContacto"
+            placeholder="Ej. María López"
+          >
+
+        </div>
+
+
+        <!-- TELÉFONO -->
+
+        <div class="campo">
+
+          <label>
+            Teléfono
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="telefono"
+            placeholder="Ej. 70712345"
+          >
+
+        </div>
+
+
+        <!-- CORREO -->
+
+        <div class="campo">
+
+          <label>
+            Correo electrónico *
+          </label>
+
+          <input
+            type="email"
+            [(ngModel)]="correo"
+            placeholder="rrhh@empresa.com"
+          >
+
+          <small>
+            Este correo será utilizado para iniciar sesión.
+          </small>
+
+        </div>
+
+
+        <!-- DIRECCIÓN -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Dirección
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="direccion"
+            placeholder="Ej. Av. América N.º 123, Cochabamba"
+          >
+
+        </div>
+
+
+      </div>
+
+
+      <!-- SECCIÓN 2 -->
+
+      <div class="seccion-titulo segunda">
+
+        <span>
+          2
+        </span>
+
+        <div>
+
+          <strong>
+            Datos de acceso
+          </strong>
+
+          <small>
+            Cree una contraseña para ingresar al portal empresarial.
+          </small>
+
+        </div>
+
+      </div>
+
+
+      <div class="grid">
+
+
+        <!-- PASSWORD -->
+
+        <div class="campo">
+
+          <label>
+            Contraseña *
+          </label>
+
+
+          <div class="password">
+
+            <input
+              [type]="
+                mostrarPassword
+                  ? 'text'
+                  : 'password'
+              "
+              [(ngModel)]="password"
+              placeholder="Mínimo 6 caracteres"
+            >
+
+
+            <button
+              type="button"
+              (click)="
+                mostrarPassword =
+                !mostrarPassword
+              "
+            >
+
+              {{
+                mostrarPassword
+                  ? 'Ocultar'
+                  : 'Ver'
+              }}
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- CONFIRMAR -->
+
+        <div class="campo">
+
+          <label>
+            Confirmar contraseña *
+          </label>
+
+
+          <div class="password">
+
+            <input
+              [type]="
+                mostrarConfirmacion
+                  ? 'text'
+                  : 'password'
+              "
+              [(ngModel)]="confirmarPassword"
+              placeholder="Repita su contraseña"
+            >
+
+
+            <button
+              type="button"
+              (click)="
+                mostrarConfirmacion =
+                !mostrarConfirmacion
+              "
+            >
+
+              {{
+                mostrarConfirmacion
+                  ? 'Ocultar'
+                  : 'Ver'
+              }}
+
+            </button>
+
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- INFORMACIÓN -->
+
+      <div class="informacion">
+
+        <div class="informacion-icono">
+          ℹ️
+        </div>
+
+        <div>
+
+          <strong>
+            Cuenta empresarial
+          </strong>
+
+          <p>
+            Después de registrarse podrá iniciar sesión
+            con el correo y contraseña ingresados.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- BOTONES -->
+
+      <div class="acciones">
+
+        <a
+          routerLink="/login"
+          class="btn-cancelar"
+        >
+
+          Cancelar
+
+        </a>
+
+
+        <button
+          type="button"
+          class="btn-registrar"
+          (click)="registrar()"
+          [disabled]="cargando"
+        >
+
+          @if (cargando) {
+
+            Registrando...
+
+          }
+
+          @else {
+
+            Registrar empresa
+
+          }
+
+        </button>
+
+      </div>
+
+
+      <div class="ya-cuenta">
+
+        ¿Ya tiene una cuenta?
+
+        <a
+          routerLink="/login"
+        >
+          Iniciar sesión
+        </a>
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+</div>

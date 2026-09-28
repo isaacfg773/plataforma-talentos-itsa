@@ -1,0 +1,555 @@
+<div class="pagina-profesionales">
+
+  <!-- =========================
+       CABECERA
+  ========================== -->
+
+  <div class="encabezado">
+
+    <div>
+      <h1>Profesionales</h1>
+
+      <p>
+        Registro y administración de perfiles profesionales
+        de Secretariado Ejecutivo.
+      </p>
+    </div>
+
+    <button
+      class="btn-nuevo"
+      (click)="abrirNuevo()"
+    >
+      + Nuevo profesional
+    </button>
+
+  </div>
+
+
+  <!-- =========================
+       BUSCADOR
+  ========================== -->
+
+  <div class="barra-herramientas">
+
+    <div class="buscador">
+
+      <span>🔎</span>
+
+      <input
+        type="text"
+        [(ngModel)]="busqueda"
+        placeholder="Buscar por nombre, CI o especialidad..."
+      >
+
+    </div>
+
+    <div class="contador">
+      {{ profesionalesFiltrados.length }}
+      profesionales
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       TABLA DE PROFESIONALES
+  ========================== -->
+
+  <div class="contenedor-tabla">
+
+    <table>
+
+      <thead>
+
+        <tr>
+          <th>Profesional</th>
+          <th>CI</th>
+          <th>Especialidad</th>
+          <th>Inglés</th>
+          <th>Teléfono</th>
+          <th>Correo</th>
+          <th>Currículum</th>
+          <th>Acciones</th>
+        </tr>
+
+      </thead>
+
+
+      <tbody>
+
+        <tr
+          *ngFor="let profesional of profesionalesFiltrados"
+        >
+
+          <!-- PROFESIONAL -->
+
+          <td>
+
+            <div class="perfil-tabla">
+
+              <div class="mini-avatar">
+
+                {{ profesional.nombres.charAt(0) }}
+                {{ profesional.apellidos.charAt(0) }}
+
+              </div>
+
+
+              <div>
+
+                <strong>
+                  {{ profesional.nombres }}
+                  {{ profesional.apellidos }}
+                </strong>
+
+                <small>
+                  ID #{{ profesional.id }}
+                </small>
+
+              </div>
+
+            </div>
+
+          </td>
+
+
+          <!-- CI -->
+
+          <td>
+            {{ profesional.ci }}
+          </td>
+
+
+          <!-- ESPECIALIDAD -->
+
+          <td>
+            {{ profesional.especialidad }}
+          </td>
+
+
+          <!-- INGLÉS -->
+
+          <td>
+
+            <span class="nivel">
+              {{ profesional.nivelIngles || 'No registrado' }}
+            </span>
+
+          </td>
+
+
+          <!-- TELÉFONO -->
+
+          <td>
+            {{ profesional.telefono || '-' }}
+          </td>
+
+
+          <!-- CORREO -->
+
+          <td>
+            {{ profesional.correo || '-' }}
+          </td>
+
+
+          <!-- CURRÍCULUM -->
+
+         <td>
+
+                <div
+                    class="cv-contenedor"
+                    *ngIf="profesional.cv"
+                >
+
+                    <button
+                    class="btn-ver-cv"
+                    (click)="verCV(profesional)"
+                    title="Abrir currículum"
+                    >
+                    📄 Ver CV
+                    </button>
+
+                    <small>
+                    {{ profesional.cv }}
+                    </small>
+
+                </div>
+
+
+                <span
+                    class="sin-cv"
+                    *ngIf="!profesional.cv"
+                >
+                    Sin CV
+                </span>
+
+        </td>
+
+          <!-- ACCIONES -->
+
+          <td>
+
+            <div class="acciones-tabla">
+
+              <button
+                class="editar"
+                (click)="editar(profesional)"
+              >
+                Editar
+              </button>
+
+
+              <button
+                class="eliminar"
+                (click)="eliminar(profesional.id)"
+              >
+                Eliminar
+              </button>
+
+            </div>
+
+          </td>
+
+        </tr>
+
+
+        <!-- SIN RESULTADOS -->
+
+        <tr *ngIf="profesionalesFiltrados.length === 0">
+
+          <td
+            colspan="8"
+            class="sin-resultados"
+          >
+            No se encontraron profesionales.
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+  <!-- =========================
+       MODAL NUEVO / EDITAR
+  ========================== -->
+
+  <div
+    class="modal-fondo"
+    *ngIf="mostrarFormulario"
+  >
+
+    <div class="modal">
+
+
+      <!-- CABECERA DEL MODAL -->
+
+      <div class="modal-header">
+
+        <div>
+
+          <h2>
+            {{
+              editando
+                ? 'Editar profesional'
+                : 'Nuevo profesional'
+            }}
+          </h2>
+
+          <p>
+            Complete la información del perfil profesional.
+          </p>
+
+        </div>
+
+
+        <button
+          class="cerrar"
+          (click)="cancelar()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- =========================
+           FORMULARIO
+      ========================== -->
+
+      <div class="formulario">
+
+
+        <!-- NOMBRES -->
+
+        <div class="campo">
+
+          <label>
+            Nombres *
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="profesionalActual.nombres"
+            placeholder="Ingrese los nombres"
+          >
+
+        </div>
+
+
+        <!-- APELLIDOS -->
+
+        <div class="campo">
+
+          <label>
+            Apellidos *
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="profesionalActual.apellidos"
+            placeholder="Ingrese los apellidos"
+          >
+
+        </div>
+
+
+        <!-- CI -->
+
+        <div class="campo">
+
+          <label>
+            Cédula de identidad *
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="profesionalActual.ci"
+            placeholder="Ej. 12345678"
+          >
+
+        </div>
+
+
+        <!-- TELÉFONO -->
+
+        <div class="campo">
+
+          <label>
+            Teléfono
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="profesionalActual.telefono"
+            placeholder="Ej. 70700000"
+          >
+
+        </div>
+
+
+        <!-- CORREO -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Correo electrónico
+          </label>
+
+          <input
+            type="email"
+            [(ngModel)]="profesionalActual.correo"
+            placeholder="correo@ejemplo.com"
+          >
+
+        </div>
+
+
+        <!-- ESPECIALIDAD -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Especialidad
+          </label>
+
+          <input
+            type="text"
+            [(ngModel)]="profesionalActual.especialidad"
+            placeholder="Ej. Secretariado Ejecutivo"
+          >
+
+        </div>
+
+
+        <!-- NIVEL INGLÉS -->
+
+        <div class="campo">
+
+          <label>
+            Nivel de inglés
+          </label>
+
+          <select
+            [(ngModel)]="profesionalActual.nivelIngles"
+          >
+
+            <option value="">
+              Seleccionar
+            </option>
+
+            <option value="Básico">
+              Básico
+            </option>
+
+            <option value="Intermedio">
+              Intermedio
+            </option>
+
+            <option value="Avanzado">
+              Avanzado
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- QUECHUA -->
+
+        <div class="campo">
+
+          <label>
+            Manejo de Quechua
+          </label>
+
+          <select
+            [(ngModel)]="profesionalActual.quechua"
+          >
+
+            <option value="">
+              Seleccionar
+            </option>
+
+            <option value="No">
+              No
+            </option>
+
+            <option value="Básico">
+              Básico
+            </option>
+
+            <option value="Intermedio">
+              Intermedio
+            </option>
+
+            <option value="Avanzado">
+              Avanzado
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- EXPERIENCIA -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Experiencia previa
+          </label>
+
+          <textarea
+            rows="4"
+            [(ngModel)]="profesionalActual.experiencia"
+            placeholder="Describa brevemente la experiencia laboral del profesional..."
+          ></textarea>
+
+        </div>
+
+
+        <!-- =========================
+             CURRÍCULUM VITAE
+        ========================== -->
+
+        <div class="campo campo-completo">
+
+          <label>
+            Currículum Vitae
+          </label>
+
+
+          <div class="carga-cv">
+
+            <input
+              type="file"
+              accept=".pdf,application/pdf"
+              (change)="seleccionarCV($event)"
+            >
+
+
+            <div
+              class="archivo-seleccionado"
+              *ngIf="profesionalActual.cv"
+            >
+
+              📄
+
+              <strong>
+                {{ profesionalActual.cv }}
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <small class="ayuda">
+            Formato permitido: PDF.
+          </small>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- =========================
+           BOTONES DEL MODAL
+      ========================== -->
+
+      <div class="modal-footer">
+
+        <button
+          class="btn-cancelar"
+          (click)="cancelar()"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          class="btn-guardar"
+          (click)="guardar()"
+        >
+
+          {{
+            editando
+              ? 'Guardar cambios'
+              : 'Registrar profesional'
+          }}
+
+        </button>
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+</div>

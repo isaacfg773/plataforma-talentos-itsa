@@ -1,0 +1,588 @@
+.pagina-registro {
+  min-height: 100vh;
+
+  background:
+    linear-gradient(
+      135deg,
+      #edf6f1,
+      #f7f9f8
+    );
+
+  padding:
+    35px 20px;
+
+  display: flex;
+
+  justify-content: center;
+}
+
+
+.contenedor-registro {
+  width: 820px;
+
+  max-width: 100%;
+
+  background: #ffffff;
+
+  border:
+    1px solid #e2e8e5;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 18px 55px
+    rgba(23, 68, 46, .10);
+
+  overflow: hidden;
+}
+
+
+/* ===================================
+   ENCABEZADO
+=================================== */
+
+.encabezado {
+  padding:
+    28px 32px 25px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #08733f,
+      #0b8c4e
+    );
+
+  color: white;
+}
+
+
+.volver {
+  display: inline-block;
+
+  margin-bottom: 20px;
+
+  color:
+    rgba(255,255,255,.85);
+
+  text-decoration: none;
+
+  font-size: 11px;
+}
+
+
+.volver:hover {
+  color: white;
+}
+
+
+.marca {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+}
+
+
+.logo {
+  width: 58px;
+
+  height: 58px;
+
+  border-radius: 50%;
+
+  background: white;
+
+  color: #08733f;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 18px;
+
+  font-weight: bold;
+}
+
+
+.marca h1 {
+  margin: 0;
+
+  font-size: 23px;
+}
+
+
+.marca p {
+  margin:
+    4px 0 0;
+
+  font-size: 11px;
+
+  opacity: .82;
+}
+
+
+.descripcion {
+  margin-top: 18px;
+
+  max-width: 610px;
+
+  font-size: 11px;
+
+  line-height: 1.6;
+
+  opacity: .85;
+}
+
+
+/* ===================================
+   FORMULARIO
+=================================== */
+
+.formulario {
+  padding:
+    28px 32px 30px;
+}
+
+
+.seccion-titulo {
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+  margin-bottom: 18px;
+}
+
+
+.seccion-titulo.segunda {
+  margin-top: 30px;
+
+  padding-top: 25px;
+
+  border-top:
+    1px solid #edf0ef;
+}
+
+
+.seccion-titulo > span {
+  width: 31px;
+
+  height: 31px;
+
+  border-radius: 50%;
+
+  background: #e3f3ea;
+
+  color: #08733f;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 11px;
+
+  font-weight: bold;
+}
+
+
+.seccion-titulo > div {
+  display: flex;
+
+  flex-direction: column;
+}
+
+
+.seccion-titulo strong {
+  color: #263238;
+
+  font-size: 13px;
+}
+
+
+.seccion-titulo small {
+  margin-top: 2px;
+
+  color: #899398;
+
+  font-size: 9px;
+}
+
+
+.grid {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap: 17px;
+}
+
+
+.campo {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 7px;
+}
+
+
+.campo-completo {
+  grid-column:
+    1 / -1;
+}
+
+
+.campo label {
+  color: #4b565c;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid #dbe2de;
+
+  border-radius: 8px;
+
+  padding:
+    10px 11px;
+
+  outline: none;
+
+  font-size: 12px;
+
+  font-family:
+    Arial, sans-serif;
+
+  background: white;
+
+  transition: .15s;
+}
+
+
+.campo input,
+.campo select {
+  min-height: 41px;
+}
+
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  border-color: #08733f;
+
+  box-shadow:
+    0 0 0 3px
+    #e5f4ec;
+}
+
+
+.campo textarea {
+  resize: vertical;
+}
+
+
+.campo small {
+  color: #939da2;
+
+  font-size: 9px;
+}
+
+
+/* ===================================
+   ARCHIVO
+=================================== */
+
+.archivo {
+  min-height: 41px;
+
+  border:
+    1px dashed #b9c9c0;
+
+  border-radius: 8px;
+
+  background: #f8faf9;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: .15s;
+}
+
+
+.archivo:hover {
+  border-color: #08733f;
+
+  background: #eff8f3;
+}
+
+
+.archivo input {
+  display: none;
+}
+
+
+.archivo span {
+  color: #08733f;
+
+  font-size: 10px;
+
+  font-weight: 600;
+}
+
+
+.archivo-seleccionado {
+  color: #08733f !important;
+
+  font-weight: 600;
+}
+
+
+/* ===================================
+   PASSWORD
+=================================== */
+
+.password {
+  position: relative;
+}
+
+
+.password input {
+  padding-right: 68px;
+}
+
+
+.password button {
+  position: absolute;
+
+  right: 7px;
+
+  top: 7px;
+
+  height: 27px;
+
+  border: none;
+
+  background: transparent;
+
+  color: #08733f;
+
+  cursor: pointer;
+
+  font-size: 10px;
+}
+
+
+/* ===================================
+   MENSAJES
+=================================== */
+
+.mensaje {
+  margin:
+    20px 32px 0;
+
+  border-radius: 8px;
+
+  padding:
+    11px 13px;
+
+  font-size: 11px;
+}
+
+
+.mensaje.error {
+  background: #fdebea;
+
+  color: #a43e3e;
+}
+
+
+.mensaje.exito {
+  background: #e3f4ea;
+
+  color: #08733f;
+
+  display: flex;
+
+  justify-content: space-between;
+}
+
+
+.mensaje.exito span {
+  opacity: .7;
+
+  font-size: 9px;
+}
+
+
+/* ===================================
+   BOTONES
+=================================== */
+
+.acciones {
+  margin-top: 30px;
+
+  padding-top: 20px;
+
+  border-top:
+    1px solid #edf0ef;
+
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+}
+
+
+.btn-cancelar {
+  min-width: 110px;
+
+  text-align: center;
+
+  text-decoration: none;
+
+  border:
+    1px solid #dce2df;
+
+  border-radius: 8px;
+
+  padding:
+    11px 15px;
+
+  color: #68747a;
+
+  background: white;
+
+  font-size: 11px;
+}
+
+
+.btn-registrar {
+  min-width: 190px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  padding:
+    11px 18px;
+
+  background: #08733f;
+
+  color: white;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  font-size: 11px;
+}
+
+
+.btn-registrar:hover {
+  background: #065f34;
+}
+
+
+.btn-registrar:disabled {
+  opacity: .6;
+
+  cursor: not-allowed;
+}
+
+
+.ya-cuenta {
+  text-align: center;
+
+  margin-top: 20px;
+
+  color: #8a9499;
+
+  font-size: 10px;
+}
+
+
+.ya-cuenta a {
+  color: #08733f;
+
+  font-weight: 600;
+
+  text-decoration: none;
+
+  margin-left: 3px;
+}
+
+
+/* ===================================
+   RESPONSIVE
+=================================== */
+
+@media (
+  max-width: 700px
+) {
+
+  .pagina-registro {
+    padding: 0;
+  }
+
+
+  .contenedor-registro {
+    border-radius: 0;
+
+    min-height: 100vh;
+  }
+
+
+  .encabezado,
+  .formulario {
+    padding:
+      24px 20px;
+  }
+
+
+  .grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .campo-completo {
+    grid-column: auto;
+  }
+
+
+  .acciones {
+    flex-direction: column-reverse;
+  }
+
+
+  .btn-cancelar,
+  .btn-registrar {
+    width: 100%;
+
+    box-sizing: border-box;
+  }
+
+}

@@ -1,0 +1,447 @@
+@if (!auth.estaAutenticado()) {
+
+
+  <!-- LOGIN SIN MENÚ -->
+
+  <router-outlet />
+
+
+}
+
+@else {
+
+
+  <div class="layout">
+
+
+    <!-- ============================
+         MENÚ LATERAL
+    ============================= -->
+
+    <aside class="sidebar">
+
+
+      <div class="marca">
+
+        <div class="logo">
+
+          ITSa
+
+        </div>
+
+
+        <div>
+
+          <strong>
+            Talentos
+          </strong>
+
+          <small>
+            Plataforma Digital
+          </small>
+
+        </div>
+
+      </div>
+
+
+      <div class="separador-menu"></div>
+
+
+      <!-- ========================
+           ADMINISTRADOR
+      ========================= -->
+
+      @if (auth.rol() === 'ADMIN') {
+
+        <div class="titulo-menu">
+          MENÚ PRINCIPAL
+        </div>
+
+
+        <nav>
+
+
+          <a
+            routerLink="/"
+            routerLinkActive="activo"
+            [routerLinkActiveOptions]="{
+              exact: true
+            }"
+          >
+            🏠
+            <span>
+              Inicio
+            </span>
+          </a>
+
+
+          <a
+            routerLink="/profesionales"
+            routerLinkActive="activo"
+          >
+            👤
+            <span>
+              Profesionales
+            </span>
+          </a>
+
+
+          <a
+            routerLink="/empresas"
+            routerLinkActive="activo"
+          >
+            🏢
+            <span>
+              Empresas
+            </span>
+          </a>
+
+
+          <a
+            routerLink="/ofertas"
+            routerLinkActive="activo"
+          >
+            💼
+            <span>
+              Ofertas laborales
+            </span>
+          </a>
+
+
+          <a
+            routerLink="/postulaciones"
+            routerLinkActive="activo"
+          >
+            📋
+            <span>
+              Postulaciones
+            </span>
+          </a>
+
+
+          <a
+            routerLink="/consultas"
+            routerLinkActive="activo"
+          >
+            🔎
+            <span>
+              Buscar talentos
+            </span>
+          </a>
+
+
+          <a
+            routerLink="/reportes"
+            routerLinkActive="activo"
+          >
+            📊
+            <span>
+              Reportes
+            </span>
+          </a>
+
+
+        </nav>
+
+      }
+
+
+      <!-- ========================
+           PROFESIONAL
+      ========================= -->
+
+      @if (
+        auth.rol() ===
+        'PROFESIONAL'
+      ) {
+
+        <div class="titulo-menu">
+          PORTAL PROFESIONAL
+        </div>
+
+
+        <nav>
+
+          <a
+            routerLink="/profesional/inicio"
+            routerLinkActive="activo"
+          >
+
+            🏠
+
+            <span>
+              Inicio
+            </span>
+
+          </a>
+
+
+          <div class="opcion-proxima">
+
+            💼
+
+            <span>
+              Ofertas disponibles
+            </span>
+
+          </div>
+
+
+          <div class="opcion-proxima">
+
+            📋
+
+            <span>
+              Mis postulaciones
+            </span>
+
+          </div>
+
+
+          <div class="opcion-proxima">
+
+            👤
+
+            <span>
+              Mi perfil
+            </span>
+
+          </div>
+
+        </nav>
+
+      }
+
+
+      <!-- ========================
+           EMPRESA
+      ========================= -->
+
+      @if (
+        auth.rol() ===
+        'EMPRESA'
+      ) {
+
+        <div class="titulo-menu">
+          PORTAL EMPRESARIAL
+        </div>
+
+
+        <nav>
+
+          <a
+            routerLink="/empresa/inicio"
+            routerLinkActive="activo"
+          >
+
+            🏠
+
+            <span>
+              Inicio
+            </span>
+
+          </a>
+
+
+          <div class="opcion-proxima">
+
+            💼
+
+            <span>
+              Mis ofertas
+            </span>
+
+          </div>
+
+
+          <div class="opcion-proxima">
+
+            👥
+
+            <span>
+              Postulantes
+            </span>
+
+          </div>
+
+
+          <div class="opcion-proxima">
+
+            🏢
+
+            <span>
+              Mi empresa
+            </span>
+
+          </div>
+
+        </nav>
+
+      }
+
+
+      <!-- SESIÓN -->
+
+      <div class="sesion">
+
+
+        <div class="sesion-info">
+
+          <small>
+
+            SESIÓN ACTIVA
+
+          </small>
+
+
+          <strong>
+
+            {{
+              auth.rol()
+            }}
+
+          </strong>
+
+
+          <span>
+
+            {{
+              auth.usuario()?.correo
+            }}
+
+          </span>
+
+        </div>
+
+
+        <button
+          (click)="cerrarSesion()"
+        >
+
+          Cerrar sesión
+
+        </button>
+
+
+      </div>
+
+
+    </aside>
+
+
+    <!-- ============================
+         CONTENIDO
+    ============================= -->
+
+    <section class="contenido">
+
+
+      <header class="topbar">
+
+
+        <div>
+
+          <strong>
+
+            Plataforma Digital de Talentos
+
+          </strong>
+
+
+          <small>
+
+            Instituto Tecnológico Sacaba
+
+          </small>
+
+        </div>
+
+
+        <div class="perfil-top">
+
+
+          <div class="circulo">
+
+            @if (
+              auth.rol() ===
+              'ADMIN'
+            ) {
+              A
+            }
+
+
+            @if (
+              auth.rol() ===
+              'PROFESIONAL'
+            ) {
+              P
+            }
+
+
+            @if (
+              auth.rol() ===
+              'EMPRESA'
+            ) {
+              E
+            }
+
+          </div>
+
+
+          <div>
+
+            <strong>
+
+              @if (
+                auth.rol() ===
+                'ADMIN'
+              ) {
+                Administrador
+              }
+
+
+              @if (
+                auth.rol() ===
+                'PROFESIONAL'
+              ) {
+                Profesional
+              }
+
+
+              @if (
+                auth.rol() ===
+                'EMPRESA'
+              ) {
+                Empresa
+              }
+
+            </strong>
+
+
+            <small>
+              ITSa
+            </small>
+
+          </div>
+
+
+        </div>
+
+
+      </header>
+
+
+      <main class="pagina">
+
+        <router-outlet />
+
+      </main>
+
+
+    </section>
+
+
+  </div>
+
+}

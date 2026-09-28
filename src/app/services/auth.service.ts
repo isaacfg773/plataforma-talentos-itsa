@@ -1,4 +1,4 @@
-import {
+﻿import {
   Injectable,
   computed,
   signal
@@ -43,7 +43,7 @@ export class AuthService {
 
 
   private API =
-    'http://localhost:3000/api';
+    'https://plataforma-talentos-itsa-production.up.railway.app/api';
 
 
   private tokenSignal =
@@ -134,7 +134,7 @@ export class AuthService {
 
         resultado.mensaje ||
 
-        'No se pudo iniciar sesión.'
+        'No se pudo iniciar sesiÃ³n.'
 
       );
 
@@ -178,7 +178,7 @@ export class AuthService {
 
 
   /* ==========================================
-     CERRAR SESIÓN
+     CERRAR SESIÃ“N
   ========================================== */
 
   logout(): void {
@@ -207,7 +207,7 @@ export class AuthService {
 
 
   /* ==========================================
-     RUTA SEGÚN ROL
+     RUTA SEGÃšN ROL
   ========================================== */
 
   rutaInicio(): string {

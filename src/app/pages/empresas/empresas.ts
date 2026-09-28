@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   ChangeDetectorRef
@@ -53,7 +53,7 @@ export class Empresas implements OnInit {
   ============================================ */
 
   private API =
-    'http://localhost:3000/api/empresas';
+    'https://plataforma-talentos-itsa-production.up.railway.app/api/empresas';
 
 
   /* ============================================
@@ -95,7 +95,7 @@ export class Empresas implements OnInit {
 
 
   /* ============================================
-     EMPRESA VACÍA
+     EMPRESA VACÃA
   ============================================ */
 
   nuevaEmpresa(): Empresa {
@@ -250,7 +250,7 @@ export class Empresas implements OnInit {
     ) {
 
       alert(
-        'Ingrese el nombre de la empresa o institución.'
+        'Ingrese el nombre de la empresa o instituciÃ³n.'
       );
 
       return;
@@ -361,7 +361,7 @@ export class Empresas implements OnInit {
 
           resultado.mensaje ||
 
-          'Ocurrió un error al guardar la empresa.'
+          'OcurriÃ³ un error al guardar la empresa.'
 
         );
 
@@ -434,7 +434,7 @@ export class Empresas implements OnInit {
 
     const confirmar =
       confirm(
-        '¿Está seguro de eliminar esta empresa?'
+        'Â¿EstÃ¡ seguro de eliminar esta empresa?'
       );
 
 

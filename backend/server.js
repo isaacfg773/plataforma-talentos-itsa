@@ -20,20 +20,12 @@ const {
 
 const app = express();
 
-/*
-  LOCAL:
-  usa 3000
-
-  RAILWAY:
-  Railway asignará automáticamente process.env.PORT
-*/
 const PORT =
   process.env.PORT || 3000;
 
 
 /*
-  Necesario para que Railway reconozca correctamente
-  HTTPS cuando la aplicación está detrás de su proxy.
+  Railway utiliza un proxy HTTPS.
 */
 app.set(
   'trust proxy',
@@ -59,22 +51,15 @@ app.use(
 
 
 /* =========================================================
-   ALMACENAMIENTO PERSISTENTE
+   ALMACENAMIENTO
 ========================================================= */
 
 /*
   LOCAL:
+  backend/database
+  backend/uploads
 
-  backend/
-      database/
-      uploads/
-
-
-  RAILWAY:
-
-  Podemos crear un volumen en /data
-  y configurar:
-
+  RAILWAY CON VOLUMEN:
   DATA_DIR=/data
 */
 
@@ -86,11 +71,10 @@ const carpetaBase =
     : __dirname;
 
 
-const carpetaUploads =
+const carpetaDatabase =
   path.join(
     carpetaBase,
-    'uploads',
-    'curriculums'
+    'database'
   );
 
 
@@ -101,19 +85,11 @@ const carpetaUploadsBase =
   );
 
 
-const carpetaDatabase =
+const carpetaUploads =
   path.join(
-    carpetaBase,
-    'database'
+    carpetaUploadsBase,
+    'curriculums'
   );
-
-
-fs.mkdirSync(
-  carpetaUploads,
-  {
-    recursive: true
-  }
-);
 
 
 fs.mkdirSync(
@@ -124,8 +100,16 @@ fs.mkdirSync(
 );
 
 
+fs.mkdirSync(
+  carpetaUploads,
+  {
+    recursive: true
+  }
+);
+
+
 /* =========================================================
-   ARCHIVOS PÚBLICOS
+   ARCHIVOS SUBIDOS
 ========================================================= */
 
 app.use(
@@ -138,17 +122,12 @@ app.use(
 
 
 /* =========================================================
-   URL PÚBLICA DEL SERVIDOR
+   URL PÚBLICA
 ========================================================= */
 
 function obtenerUrlBase(
   req
 ) {
-
-  /*
-    Si más adelante configuramos PUBLIC_URL
-    en Railway, tendrá prioridad.
-  */
 
   if (
     process.env.PUBLIC_URL
@@ -162,14 +141,6 @@ function obtenerUrlBase(
 
   }
 
-
-  /*
-    LOCAL:
-    http://localhost:3000
-
-    RAILWAY:
-    https://xxxx.up.railway.app
-  */
 
   return `${req.protocol}://${req.get('host')}`;
 
@@ -345,7 +316,7 @@ db.exec(`
 
 
 /* =========================================================
-   MIGRACIÓN DE BASE EXISTENTE
+   MIGRACIONES
 ========================================================= */
 
 function existeColumna(
@@ -369,8 +340,6 @@ function existeColumna(
 }
 
 
-/* PROFESIONALES */
-
 if (
   !existeColumna(
     'profesionales',
@@ -390,8 +359,6 @@ if (
 
 }
 
-
-/* EMPRESAS */
 
 if (
   !existeColumna(
@@ -438,7 +405,7 @@ db.exec(`
 
 
 /* =========================================================
-   MULTER - CURRÍCULUM PDF
+   MULTER - CURRÍCULUM
 ========================================================= */
 
 const almacenamiento =
@@ -535,7 +502,7 @@ const subirCV =
 
 
 /* =========================================================
-   ELIMINAR ARCHIVO SUBIDO
+   ELIMINAR ARCHIVO
 ========================================================= */
 
 function eliminarArchivoSubido(
@@ -647,7 +614,7 @@ function eliminarCvPorUrl(
 
 
 /* =========================================================
-   AUTENTICACIÓN
+   AUTENTICACIÓN Y ROLES
 ========================================================= */
 
 instalarAutenticacion(
@@ -657,7 +624,7 @@ instalarAutenticacion(
 
 
 /* =========================================================
-   VALIDACIONES
+   VALIDAR CORREO
 ========================================================= */
 
 function correoValido(
@@ -783,9 +750,7 @@ app.post(
         db
           .prepare(`
             SELECT id
-
             FROM usuarios
-
             WHERE LOWER(correo) = ?
           `)
           .get(
@@ -818,9 +783,7 @@ app.post(
         db
           .prepare(`
             SELECT *
-
             FROM profesionales
-
             WHERE ci = ?
           `)
           .get(
@@ -918,10 +881,6 @@ app.post(
       let profesionalId;
 
 
-      /* =========================================
-         PROFESIONAL YA EXISTENTE
-      ========================================= */
-
       if (
         profesionalExistente
       ) {
@@ -1007,11 +966,6 @@ app.post(
 
       }
 
-
-      /* =========================================
-         NUEVO PROFESIONAL
-      ========================================= */
-
       else {
 
         const resultadoProfesional =
@@ -1083,7 +1037,7 @@ app.post(
         false;
 
 
-      res
+      return res
         .status(201)
         .json({
 
@@ -1103,7 +1057,6 @@ app.post(
         });
 
     }
-
 
     catch (error) {
 
@@ -1135,26 +1088,7 @@ app.post(
       );
 
 
-      if (
-        String(error)
-          .includes(
-            'UNIQUE'
-          )
-      ) {
-
-        return res
-          .status(400)
-          .json({
-
-            mensaje:
-              'Ya existe un registro con esos datos.'
-
-          });
-
-      }
-
-
-      res
+      return res
         .status(500)
         .json({
 
@@ -1257,9 +1191,7 @@ app.post(
         db
           .prepare(`
             SELECT id
-
             FROM usuarios
-
             WHERE LOWER(correo) = ?
           `)
           .get(
@@ -1287,9 +1219,7 @@ app.post(
         db
           .prepare(`
             SELECT *
-
             FROM empresas
-
             WHERE LOWER(correo) = ?
           `)
           .get(
@@ -1363,8 +1293,6 @@ app.post(
       let empresaId;
 
 
-      /* EMPRESA YA REGISTRADA POR ADMIN */
-
       if (
         empresaExistente
       ) {
@@ -1409,9 +1337,6 @@ app.post(
           empresaExistente.id;
 
       }
-
-
-      /* NUEVA EMPRESA */
 
       else {
 
@@ -1469,7 +1394,7 @@ app.post(
         false;
 
 
-      res
+      return res
         .status(201)
         .json({
 
@@ -1489,7 +1414,6 @@ app.post(
         });
 
     }
-
 
     catch (error) {
 
@@ -1516,26 +1440,7 @@ app.post(
       );
 
 
-      if (
-        String(error)
-          .includes(
-            'UNIQUE'
-          )
-      ) {
-
-        return res
-          .status(400)
-          .json({
-
-            mensaje:
-              'Ya existe una cuenta con esos datos.'
-
-          });
-
-      }
-
-
-      res
+      return res
         .status(500)
         .json({
 
@@ -1551,11 +1456,11 @@ app.post(
 
 
 /* =========================================================
-   RUTA PRINCIPAL
+   HEALTH / DIAGNÓSTICO BACKEND
 ========================================================= */
 
 app.get(
-  '/',
+  '/api/health',
 
   (req, res) => {
 
@@ -1617,15 +1522,13 @@ app.get(
         db
           .prepare(`
             SELECT *
-
             FROM profesionales
-
             ORDER BY id DESC
           `)
           .all();
 
 
-      res.json(
+      return res.json(
         datos
       );
 
@@ -1638,7 +1541,7 @@ app.get(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -1668,9 +1571,7 @@ app.get(
         db
           .prepare(`
             SELECT *
-
             FROM profesionales
-
             WHERE id = ?
           `)
           .get(
@@ -1696,7 +1597,7 @@ app.get(
       }
 
 
-      res.json(
+      return res.json(
         profesional
       );
 
@@ -1709,7 +1610,7 @@ app.get(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -1725,7 +1626,7 @@ app.get(
 
 
 /* =========================================================
-   PROFESIONALES - REGISTRAR ADMIN
+   PROFESIONALES - CREAR
 ========================================================= */
 
 app.post(
@@ -1844,9 +1745,7 @@ app.post(
         db
           .prepare(`
             SELECT *
-
             FROM profesionales
-
             WHERE id = ?
           `)
           .get(
@@ -1856,14 +1755,13 @@ app.post(
           );
 
 
-      res
+      return res
         .status(201)
         .json(
           nuevo
         );
 
     }
-
 
     catch (error) {
 
@@ -1896,7 +1794,7 @@ app.post(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -1934,9 +1832,7 @@ app.put(
         db
           .prepare(`
             SELECT *
-
             FROM profesionales
-
             WHERE id = ?
           `)
           .get(id);
@@ -2078,20 +1974,17 @@ app.put(
         db
           .prepare(`
             SELECT *
-
             FROM profesionales
-
             WHERE id = ?
           `)
           .get(id);
 
 
-      res.json(
+      return res.json(
         actualizado
       );
 
     }
-
 
     catch (error) {
 
@@ -2119,7 +2012,7 @@ app.put(
       }
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -2155,9 +2048,7 @@ app.delete(
         db
           .prepare(`
             SELECT *
-
             FROM profesionales
-
             WHERE id = ?
           `)
           .get(id);
@@ -2183,9 +2074,7 @@ app.delete(
         db
           .prepare(`
             SELECT COUNT(*) AS total
-
             FROM postulaciones
-
             WHERE profesionalId = ?
           `)
           .get(id);
@@ -2217,13 +2106,12 @@ app.delete(
       db
         .prepare(`
           DELETE FROM profesionales
-
           WHERE id = ?
         `)
         .run(id);
 
 
-      res.json({
+      return res.json({
 
         mensaje:
           'Profesional eliminado correctamente.'
@@ -2232,7 +2120,6 @@ app.delete(
 
     }
 
-
     catch (error) {
 
       console.error(
@@ -2240,7 +2127,7 @@ app.delete(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -2270,15 +2157,13 @@ app.get(
         db
           .prepare(`
             SELECT *
-
             FROM empresas
-
             ORDER BY id DESC
           `)
           .all();
 
 
-      res.json(
+      return res.json(
         empresas
       );
 
@@ -2291,7 +2176,7 @@ app.get(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -2321,9 +2206,7 @@ app.get(
         db
           .prepare(`
             SELECT *
-
             FROM empresas
-
             WHERE id = ?
           `)
           .get(
@@ -2349,7 +2232,7 @@ app.get(
       }
 
 
-      res.json(
+      return res.json(
         empresa
       );
 
@@ -2362,7 +2245,7 @@ app.get(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -2378,7 +2261,7 @@ app.get(
 
 
 /* =========================================================
-   EMPRESAS - REGISTRAR ADMIN
+   EMPRESAS - CREAR
 ========================================================= */
 
 app.post(
@@ -2452,9 +2335,7 @@ app.post(
         db
           .prepare(`
             SELECT *
-
             FROM empresas
-
             WHERE id = ?
           `)
           .get(
@@ -2464,7 +2345,7 @@ app.post(
           );
 
 
-      res
+      return res
         .status(201)
         .json(
           nueva
@@ -2479,7 +2360,7 @@ app.post(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -2515,9 +2396,7 @@ app.put(
         db
           .prepare(`
             SELECT id
-
             FROM empresas
-
             WHERE id = ?
           `)
           .get(id);
@@ -2603,15 +2482,13 @@ app.put(
         db
           .prepare(`
             SELECT *
-
             FROM empresas
-
             WHERE id = ?
           `)
           .get(id);
 
 
-      res.json(
+      return res.json(
         actualizada
       );
 
@@ -2624,7 +2501,7 @@ app.put(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -2660,9 +2537,7 @@ app.delete(
         db
           .prepare(`
             SELECT id
-
             FROM empresas
-
             WHERE id = ?
           `)
           .get(id);
@@ -2688,9 +2563,7 @@ app.delete(
         db
           .prepare(`
             SELECT COUNT(*) AS total
-
             FROM ofertas
-
             WHERE empresaId = ?
           `)
           .get(id);
@@ -2717,13 +2590,12 @@ app.delete(
       db
         .prepare(`
           DELETE FROM empresas
-
           WHERE id = ?
         `)
         .run(id);
 
 
-      res.json({
+      return res.json({
 
         mensaje:
           'Empresa eliminada correctamente.'
@@ -2739,7 +2611,7 @@ app.delete(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -2772,8 +2644,7 @@ app.get(
 
               o.*,
 
-              e.nombre
-              AS empresaNombre
+              e.nombre AS empresaNombre
 
             FROM ofertas o
 
@@ -2785,7 +2656,7 @@ app.get(
           .all();
 
 
-      res.json(
+      return res.json(
         ofertas
       );
 
@@ -2798,7 +2669,7 @@ app.get(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -2831,8 +2702,7 @@ app.get(
 
               o.*,
 
-              e.nombre
-              AS empresaNombre
+              e.nombre AS empresaNombre
 
             FROM ofertas o
 
@@ -2864,7 +2734,7 @@ app.get(
       }
 
 
-      res.json(
+      return res.json(
         oferta
       );
 
@@ -2877,7 +2747,7 @@ app.get(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -2893,7 +2763,7 @@ app.get(
 
 
 /* =========================================================
-   OFERTAS - REGISTRAR
+   OFERTAS - CREAR
 ========================================================= */
 
 app.post(
@@ -2956,9 +2826,7 @@ app.post(
         db
           .prepare(`
             SELECT id
-
             FROM empresas
-
             WHERE id = ?
           `)
           .get(
@@ -3035,8 +2903,7 @@ app.post(
 
               o.*,
 
-              e.nombre
-              AS empresaNombre
+              e.nombre AS empresaNombre
 
             FROM ofertas o
 
@@ -3052,7 +2919,7 @@ app.post(
           );
 
 
-      res
+      return res
         .status(201)
         .json(
           nueva
@@ -3067,7 +2934,7 @@ app.post(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -3103,9 +2970,7 @@ app.put(
         db
           .prepare(`
             SELECT id
-
             FROM ofertas
-
             WHERE id = ?
           `)
           .get(id);
@@ -3153,23 +3018,6 @@ app.put(
 
             mensaje:
               'Empresa, cargo y fechas son obligatorios.'
-
-          });
-
-      }
-
-
-      if (
-        fechaCierre <
-        fechaPublicacion
-      ) {
-
-        return res
-          .status(400)
-          .json({
-
-            mensaje:
-              'La fecha de cierre no puede ser anterior a la publicación.'
 
           });
 
@@ -3227,8 +3075,7 @@ app.put(
 
               o.*,
 
-              e.nombre
-              AS empresaNombre
+              e.nombre AS empresaNombre
 
             FROM ofertas o
 
@@ -3240,7 +3087,7 @@ app.put(
           .get(id);
 
 
-      res.json(
+      return res.json(
         actualizada
       );
 
@@ -3253,7 +3100,7 @@ app.put(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -3289,9 +3136,7 @@ app.delete(
         db
           .prepare(`
             SELECT id
-
             FROM ofertas
-
             WHERE id = ?
           `)
           .get(id);
@@ -3317,9 +3162,7 @@ app.delete(
         db
           .prepare(`
             SELECT COUNT(*) AS total
-
             FROM postulaciones
-
             WHERE ofertaId = ?
           `)
           .get(id);
@@ -3346,13 +3189,12 @@ app.delete(
       db
         .prepare(`
           DELETE FROM ofertas
-
           WHERE id = ?
         `)
         .run(id);
 
 
-      res.json({
+      return res.json({
 
         mensaje:
           'Oferta eliminada correctamente.'
@@ -3368,7 +3210,7 @@ app.delete(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -3431,7 +3273,7 @@ app.get(
           .all();
 
 
-      res.json(
+      return res.json(
         postulaciones
       );
 
@@ -3444,7 +3286,7 @@ app.get(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -3527,7 +3369,7 @@ app.get(
       }
 
 
-      res.json(
+      return res.json(
         postulacion
       );
 
@@ -3540,7 +3382,7 @@ app.get(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -3556,7 +3398,7 @@ app.get(
 
 
 /* =========================================================
-   POSTULACIONES - REGISTRAR
+   POSTULACIONES - CREAR
 ========================================================= */
 
 app.post(
@@ -3597,9 +3439,7 @@ app.post(
         db
           .prepare(`
             SELECT id
-
             FROM profesionales
-
             WHERE id = ?
           `)
           .get(
@@ -3629,9 +3469,7 @@ app.post(
         db
           .prepare(`
             SELECT id
-
             FROM ofertas
-
             WHERE id = ?
           `)
           .get(
@@ -3661,11 +3499,8 @@ app.post(
         db
           .prepare(`
             SELECT id
-
             FROM postulaciones
-
             WHERE profesionalId = ?
-
             AND ofertaId = ?
           `)
           .get(
@@ -3731,49 +3566,19 @@ app.post(
           );
 
 
-      const nueva =
-        db
-          .prepare(`
-            SELECT
+      return res
+        .status(201)
+        .json({
 
-              p.*,
-
-              pr.nombres ||
-              ' ' ||
-              pr.apellidos
-              AS profesionalNombre,
-
-              o.cargo
-              AS ofertaCargo,
-
-              e.nombre
-              AS empresaNombre
-
-            FROM postulaciones p
-
-            INNER JOIN profesionales pr
-              ON pr.id = p.profesionalId
-
-            INNER JOIN ofertas o
-              ON o.id = p.ofertaId
-
-            INNER JOIN empresas e
-              ON e.id = o.empresaId
-
-            WHERE p.id = ?
-          `)
-          .get(
+          id:
             Number(
               resultado.lastInsertRowid
-            )
-          );
+            ),
 
+          mensaje:
+            'Postulación registrada correctamente.'
 
-      res
-        .status(201)
-        .json(
-          nueva
-        );
+        });
 
     }
 
@@ -3784,7 +3589,7 @@ app.post(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -3820,9 +3625,7 @@ app.put(
         db
           .prepare(`
             SELECT id
-
             FROM postulaciones
-
             WHERE id = ?
           `)
           .get(id);
@@ -3851,24 +3654,6 @@ app.put(
         estado,
         observaciones
       } = req.body;
-
-
-      if (
-        !profesionalId ||
-        !ofertaId ||
-        !fechaPostulacion
-      ) {
-
-        return res
-          .status(400)
-          .json({
-
-            mensaje:
-              'Profesional, oferta y fecha son obligatorios.'
-
-          });
-
-      }
 
 
       const duplicada =
@@ -3949,7 +3734,7 @@ app.put(
         );
 
 
-      res.json({
+      return res.json({
 
         mensaje:
           'Postulación actualizada correctamente.'
@@ -3965,7 +3750,7 @@ app.put(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -3997,20 +3782,18 @@ app.delete(
         );
 
 
-      const postulacion =
+      const existente =
         db
           .prepare(`
             SELECT id
-
             FROM postulaciones
-
             WHERE id = ?
           `)
           .get(id);
 
 
       if (
-        !postulacion
+        !existente
       ) {
 
         return res
@@ -4028,13 +3811,12 @@ app.delete(
       db
         .prepare(`
           DELETE FROM postulaciones
-
           WHERE id = ?
         `)
         .run(id);
 
 
-      res.json({
+      return res.json({
 
         mensaje:
           'Postulación eliminada correctamente.'
@@ -4050,7 +3832,7 @@ app.delete(
       );
 
 
-      res
+      return res
         .status(500)
         .json({
 
@@ -4066,15 +3848,23 @@ app.delete(
 
 
 /* =========================================================
-   ERROR 404 API
+   ERROR 404 DE API
 ========================================================= */
+
+/*
+  IMPORTANTE:
+  Todo lo que comience por /api y no exista
+  devolverá JSON.
+
+  Esto debe ir ANTES del fallback de Angular.
+*/
 
 app.use(
   '/api',
 
   (req, res) => {
 
-    res
+    return res
       .status(404)
       .json({
 
@@ -4082,6 +3872,113 @@ app.use(
           'Ruta de API no encontrada.'
 
       });
+
+  }
+);
+
+
+/* =========================================================
+   FRONTEND ANGULAR
+========================================================= */
+
+/*
+  Angular compilado debe estar en:
+
+  backend/public/index.html
+  backend/public/main-xxxx.js
+  backend/public/styles-xxxx.css
+*/
+
+const carpetaFrontend =
+  path.join(
+    __dirname,
+    'public'
+  );
+
+
+app.use(
+  express.static(
+    carpetaFrontend
+  )
+);
+
+
+/* =========================================================
+   FALLBACK ANGULAR
+========================================================= */
+
+/*
+  Permite abrir:
+
+  /
+  /login
+  /registro-profesional
+  /registro-empresa
+  /profesional/inicio
+  /empresa/inicio
+
+  También permite actualizar con F5 sin recibir 404.
+*/
+
+app.use(
+  (req, res, next) => {
+
+    if (
+      req.method !== 'GET'
+    ) {
+
+      return next();
+
+    }
+
+
+    if (
+      req.path.startsWith(
+        '/api'
+      )
+    ) {
+
+      return next();
+
+    }
+
+
+    if (
+      req.path.startsWith(
+        '/uploads'
+      )
+    ) {
+
+      return next();
+
+    }
+
+
+    const indexAngular =
+      path.join(
+        carpetaFrontend,
+        'index.html'
+      );
+
+
+    if (
+      !fs.existsSync(
+        indexAngular
+      )
+    ) {
+
+      return res
+        .status(503)
+        .send(
+          'Frontend Angular no encontrado. Ejecute npm run build y copie dist/plataforma-talentos/browser dentro de backend/public.'
+        );
+
+    }
+
+
+    return res.sendFile(
+      indexAngular
+    );
 
   }
 );
@@ -4194,7 +4091,11 @@ app.listen(
     );
 
     console.log(
-      `Archivos: ${carpetaUploads}`
+      `Currículums: ${carpetaUploads}`
+    );
+
+    console.log(
+      `Frontend: ${carpetaFrontend}`
     );
 
     console.log('');

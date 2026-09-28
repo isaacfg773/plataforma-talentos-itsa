@@ -1,4 +1,4 @@
-import {
+﻿import {
   ChangeDetectorRef,
   Component
 } from '@angular/core';
@@ -36,7 +36,7 @@ export class RegistroEmpresa {
   ========================================= */
 
   private API =
-    'http://localhost:3000/api/auth/registro-empresa';
+    'https://plataforma-talentos-itsa-production.up.railway.app/api/auth/registro-empresa';
 
 
   /* =========================================
@@ -57,7 +57,7 @@ export class RegistroEmpresa {
 
 
   /* =========================================
-     CONTRASEÑA
+     CONTRASEÃ‘A
   ========================================= */
 
   password = '';
@@ -129,21 +129,21 @@ export class RegistroEmpresa {
     ) {
 
       this.error =
-        'Ingrese un correo electrónico válido.';
+        'Ingrese un correo electrÃ³nico vÃ¡lido.';
 
       return;
 
     }
 
 
-    /* VALIDAR CONTRASEÑA */
+    /* VALIDAR CONTRASEÃ‘A */
 
     if (
       this.password.length < 6
     ) {
 
       this.error =
-        'La contraseña debe tener al menos 6 caracteres.';
+        'La contraseÃ±a debe tener al menos 6 caracteres.';
 
       return;
 
@@ -156,7 +156,7 @@ export class RegistroEmpresa {
     ) {
 
       this.error =
-        'Las contraseñas no coinciden.';
+        'Las contraseÃ±as no coinciden.';
 
       return;
 
@@ -266,7 +266,7 @@ export class RegistroEmpresa {
       else {
 
         this.error =
-          'Ocurrió un error al registrar la empresa.';
+          'OcurriÃ³ un error al registrar la empresa.';
 
       }
 

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   ChangeDetectorRef
@@ -62,13 +62,13 @@ interface Postulacion {
 export class Postulaciones implements OnInit {
 
   private API_POSTULACIONES =
-    'http://localhost:3000/api/postulaciones';
+    'https://plataforma-talentos-itsa-production.up.railway.app/api/postulaciones';
 
   private API_PROFESIONALES =
-    'http://localhost:3000/api/profesionales';
+    'https://plataforma-talentos-itsa-production.up.railway.app/api/profesionales';
 
   private API_OFERTAS =
-    'http://localhost:3000/api/ofertas';
+    'https://plataforma-talentos-itsa-production.up.railway.app/api/ofertas';
 
 
   postulaciones: Postulacion[] = [];
@@ -442,7 +442,7 @@ export class Postulaciones implements OnInit {
     ) {
 
       alert(
-        'Ingrese la fecha de postulación.'
+        'Ingrese la fecha de postulaciÃ³n.'
       );
 
       return;
@@ -543,7 +543,7 @@ export class Postulaciones implements OnInit {
 
         alert(
           resultado.mensaje ||
-          'No se pudo guardar la postulación.'
+          'No se pudo guardar la postulaciÃ³n.'
         );
 
         return;
@@ -556,7 +556,7 @@ export class Postulaciones implements OnInit {
       ) {
 
         alert(
-          'Postulación actualizada correctamente.'
+          'PostulaciÃ³n actualizada correctamente.'
         );
 
       }
@@ -564,7 +564,7 @@ export class Postulaciones implements OnInit {
       else {
 
         alert(
-          'Postulación registrada correctamente.'
+          'PostulaciÃ³n registrada correctamente.'
         );
 
       }
@@ -583,7 +583,7 @@ export class Postulaciones implements OnInit {
     catch (error) {
 
       console.error(
-        'Error guardando postulación:',
+        'Error guardando postulaciÃ³n:',
         error
       );
 
@@ -615,7 +615,7 @@ export class Postulaciones implements OnInit {
 
     const confirmar =
       confirm(
-        '¿Está seguro de eliminar esta postulación?'
+        'Â¿EstÃ¡ seguro de eliminar esta postulaciÃ³n?'
       );
 
 
@@ -651,7 +651,7 @@ export class Postulaciones implements OnInit {
 
         alert(
           resultado.mensaje ||
-          'No se pudo eliminar la postulación.'
+          'No se pudo eliminar la postulaciÃ³n.'
         );
 
         return;
@@ -660,7 +660,7 @@ export class Postulaciones implements OnInit {
 
 
       alert(
-        'Postulación eliminada correctamente.'
+        'PostulaciÃ³n eliminada correctamente.'
       );
 
 
@@ -674,7 +674,7 @@ export class Postulaciones implements OnInit {
     catch (error) {
 
       console.error(
-        'Error eliminando postulación:',
+        'Error eliminando postulaciÃ³n:',
         error
       );
 

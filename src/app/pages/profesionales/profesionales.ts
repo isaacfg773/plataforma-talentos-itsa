@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   ChangeDetectorRef
@@ -63,7 +63,7 @@ export class Profesionales implements OnInit {
   ===================================================== */
 
   private API =
-    'http://localhost:3000/api/profesionales';
+    'https://plataforma-talentos-itsa-production.up.railway.app/api/profesionales';
 
 
   /* =====================================================
@@ -104,7 +104,7 @@ export class Profesionales implements OnInit {
   ngOnInit(): void {
 
     console.log(
-      'Iniciando módulo profesionales...'
+      'Iniciando mÃ³dulo profesionales...'
     );
 
     this.cargarProfesionales();
@@ -113,7 +113,7 @@ export class Profesionales implements OnInit {
 
 
   /* =====================================================
-     PROFESIONAL VACÍO
+     PROFESIONAL VACÃO
   ===================================================== */
 
   nuevoProfesional(): Profesional {
@@ -220,7 +220,7 @@ export class Profesionales implements OnInit {
 
       /*
        IMPORTANTE:
-       Forzar actualización de la pantalla
+       Forzar actualizaciÃ³n de la pantalla
       */
 
       this.cdr.detectChanges();
@@ -309,7 +309,7 @@ export class Profesionales implements OnInit {
 
 
   /* =====================================================
-     SELECCIONAR CURRÍCULUM
+     SELECCIONAR CURRÃCULUM
   ===================================================== */
 
   seleccionarCV(
@@ -342,7 +342,7 @@ export class Profesionales implements OnInit {
     ) {
 
       alert(
-        'El currículum debe estar en formato PDF.'
+        'El currÃ­culum debe estar en formato PDF.'
       );
 
       input.value = '';
@@ -352,7 +352,7 @@ export class Profesionales implements OnInit {
     }
 
 
-    /* MÁXIMO 5 MB */
+    /* MÃXIMO 5 MB */
 
     if (
       archivo.size >
@@ -360,7 +360,7 @@ export class Profesionales implements OnInit {
     ) {
 
       alert(
-        'El currículum no puede superar los 5 MB.'
+        'El currÃ­culum no puede superar los 5 MB.'
       );
 
       input.value = '';
@@ -381,7 +381,7 @@ export class Profesionales implements OnInit {
 
 
   /* =====================================================
-     VER CURRÍCULUM
+     VER CURRÃCULUM
   ===================================================== */
 
   verCV(
@@ -393,7 +393,7 @@ export class Profesionales implements OnInit {
     ) {
 
       alert(
-        'Este profesional no tiene un currículum disponible.'
+        'Este profesional no tiene un currÃ­culum disponible.'
       );
 
       return;
@@ -419,7 +419,7 @@ export class Profesionales implements OnInit {
   async guardar(): Promise<void> {
 
 
-    /* VALIDACIÓN */
+    /* VALIDACIÃ“N */
 
     if (
 
@@ -535,7 +535,7 @@ export class Profesionales implements OnInit {
 
 
       /* ==========================================
-         CURRÍCULUM
+         CURRÃCULUM
       ========================================== */
 
       if (
@@ -622,7 +622,7 @@ export class Profesionales implements OnInit {
 
           resultado.mensaje ||
 
-          'Ocurrió un error al guardar.'
+          'OcurriÃ³ un error al guardar.'
 
         );
 
@@ -707,7 +707,7 @@ export class Profesionales implements OnInit {
     const confirmar =
       confirm(
 
-        '¿Está seguro de eliminar este profesional?'
+        'Â¿EstÃ¡ seguro de eliminar este profesional?'
 
       );
 

@@ -1,4 +1,4 @@
-import {
+﻿import {
   ChangeDetectorRef,
   Component,
   OnInit
@@ -92,7 +92,7 @@ export class Login implements OnInit {
     ) {
 
       this.error =
-        'Ingrese su correo y contraseña.';
+        'Ingrese su correo y contraseÃ±a.';
 
       return;
 
@@ -128,7 +128,7 @@ export class Login implements OnInit {
 
           ? error.message
 
-          : 'Error al iniciar sesión.';
+          : 'Error al iniciar sesiÃ³n.';
 
 
       this.cdr.detectChanges();

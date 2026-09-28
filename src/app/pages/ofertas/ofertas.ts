@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   ChangeDetectorRef
@@ -70,10 +70,10 @@ export class Ofertas implements OnInit {
   ============================================ */
 
   private API_OFERTAS =
-    'http://localhost:3000/api/ofertas';
+    'https://plataforma-talentos-itsa-production.up.railway.app/api/ofertas';
 
   private API_EMPRESAS =
-    'http://localhost:3000/api/empresas';
+    'https://plataforma-talentos-itsa-production.up.railway.app/api/empresas';
 
 
   /* ============================================
@@ -115,7 +115,7 @@ export class Ofertas implements OnInit {
 
 
   /* ============================================
-     OBJETO VACÍO
+     OBJETO VACÃO
   ============================================ */
 
   nuevaOferta(): Oferta {
@@ -409,7 +409,7 @@ export class Ofertas implements OnInit {
     ) {
 
       alert(
-        'Ingrese la fecha de publicación.'
+        'Ingrese la fecha de publicaciÃ³n.'
       );
 
       return;
@@ -436,7 +436,7 @@ export class Ofertas implements OnInit {
     ) {
 
       alert(
-        'La fecha de cierre no puede ser anterior a la fecha de publicación.'
+        'La fecha de cierre no puede ser anterior a la fecha de publicaciÃ³n.'
       );
 
       return;
@@ -640,7 +640,7 @@ export class Ofertas implements OnInit {
 
     const confirmar =
       confirm(
-        '¿Está seguro de eliminar esta oferta laboral?'
+        'Â¿EstÃ¡ seguro de eliminar esta oferta laboral?'
       );
 
 

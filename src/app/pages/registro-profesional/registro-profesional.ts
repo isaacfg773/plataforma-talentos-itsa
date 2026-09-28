@@ -1,4 +1,4 @@
-import {
+﻿import {
   ChangeDetectorRef,
   Component
 } from '@angular/core';
@@ -31,7 +31,7 @@ import {
 export class RegistroProfesional {
 
   private API =
-    'http://localhost:3000/api/auth/registro-profesional';
+    'https://plataforma-talentos-itsa-production.up.railway.app/api/auth/registro-profesional';
 
 
   /* =========================================
@@ -63,7 +63,7 @@ export class RegistroProfesional {
 
 
   /* =========================================
-     CONTRASEÑA
+     CONTRASEÃ‘A
   ========================================= */
 
   password = '';
@@ -76,7 +76,7 @@ export class RegistroProfesional {
 
 
   /* =========================================
-     CURRÍCULUM
+     CURRÃCULUM
   ========================================= */
 
   archivoCV: File | null = null;
@@ -151,7 +151,7 @@ export class RegistroProfesional {
     ) {
 
       alert(
-        'El currículum debe estar en formato PDF.'
+        'El currÃ­culum debe estar en formato PDF.'
       );
 
       elemento.value = '';
@@ -171,7 +171,7 @@ export class RegistroProfesional {
     ) {
 
       alert(
-        'El currículum no puede superar los 5 MB.'
+        'El currÃ­culum no puede superar los 5 MB.'
       );
 
       elemento.value = '';
@@ -231,20 +231,20 @@ export class RegistroProfesional {
     ) {
 
       this.error =
-        'Ingrese un correo electrónico válido.';
+        'Ingrese un correo electrÃ³nico vÃ¡lido.';
 
       return;
     }
 
 
-    /* CONTRASEÑA */
+    /* CONTRASEÃ‘A */
 
     if (
       this.password.length < 6
     ) {
 
       this.error =
-        'La contraseña debe tener al menos 6 caracteres.';
+        'La contraseÃ±a debe tener al menos 6 caracteres.';
 
       return;
     }
@@ -256,7 +256,7 @@ export class RegistroProfesional {
     ) {
 
       this.error =
-        'Las contraseñas no coinciden.';
+        'Las contraseÃ±as no coinciden.';
 
       return;
     }
@@ -411,7 +411,7 @@ export class RegistroProfesional {
       else {
 
         this.error =
-          'Ocurrió un error al registrar la cuenta.';
+          'OcurriÃ³ un error al registrar la cuenta.';
 
       }
 
